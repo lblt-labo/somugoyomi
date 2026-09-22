@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>そむごよみ</title>
+<meta name="description" content="私だけの「今年初めて」を記録するアプリ">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="そむごよみ">
+<meta property="og:description" content="私だけの「今年初めて」を記録するアプリ">
+<meta property="og:image" content="./ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="そむごよみ">
+<meta name="twitter:description" content="私だけの「今年初めて」を記録するアプリ">
+<meta name="twitter:image" content="./ogp.png">
+
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="theme-color" content="#F8F5F0">
+
+<style>
+  :root{
+    --paper:#F8F5F0;
+    --paper-raised:#FBF9F5;
+    --paper-deep:#EFE9DD;
+    --ink:#3B3835;
+    --ink-soft:#8b8580;
+    --ink-faint:#b8b2aa;
+    --vermilion:#B83B26;
+    --vermilion-soft:#c9705a;
+    --line:#dcd5c8;
+    --focus:#5b7a8c;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    background:var(--paper);
+    background-image:
+      radial-gradient(rgba(59,56,53,0.025) 1px, transparent 1px);
+    background-size:3px 3px;
+    color:var(--ink);
+    font-family:"BIZ UDPMincho","BIZ PMincho","Hiragino Mincho ProN","Yu Mincho",serif;
+    min-height:100%;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-tap-highlight-color:transparent;
+    line-height:1.6;
+  }
+  #app{max-width:640px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+  button:focus-visible, [tabindex]:focus-visible, input:focus-visible{
+    outline:2px solid var(--focus);
+    outline-offset:2px;
+  }
+
+  /* ---------- Header ---------- */
+  header.top{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:rgba(248,245,240,0.94);
+    backdrop-filter:blur(4px);
+    border-bottom:1px solid var(--line);
+    padding:0.9rem 1.1rem 0.6rem;
+  }
+  .top-row{display:flex;align-items:baseline;justify-content:space-between;gap:0.6rem;}
+  .brand{display:flex;flex-direction:column;}
+  .brand h1{
+    font-size:1.5rem;font-weight:600;margin:0;letter-spacing:0.06em;
+  }
+  .brand p{margin:0.15rem 0 0;font-size:0.68rem;color:var(--ink-soft);letter-spacing:0.03em;}
+  .icon-btn{
+    background:none;border:none;color:var(--ink-soft);cursor:pointer;
+    min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;
+    border-radius:50%;font-size:1.05rem;transition:background 0.15s ease, color 0.15s ease;
+  }
+  .icon-btn:hover, .icon-btn:active{background:var(--paper-deep);color:var(--ink);}
+  .header-actions{display:flex;align-items:center;gap:0.1rem;}
+
+  .year-row{display:flex;align-items:center;justify-content:center;gap:0.9rem;margin-top:0.7rem;}
+  .year-row button{
+    background:none;border:1px solid var(--line);color:var(--ink-soft);
+    min-width:36px;min-height:36px;border-radius:50%;cursor:pointer;font-size:0.9rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .year-row button:disabled{opacity:0.3;cursor:default;}
+  .year-row button:not(:disabled):hover{border-color:var(--vermilion-soft);color:var(--vermilion);}
+  .year-label{font-size:1rem;letter-spacing:0.08em;min-width:5.5em;text-align:center;}
+  .year-note{
+    text-align:center;font-size:0.66rem;color:var(--vermilion-soft);margin-top:0.35rem;
+    letter-spacing:0.02em;
+  }
+
+  /* ---------- Tabs ---------- */
+  nav.tabs{
+    display:flex;overflow-x:auto;gap:0.2rem;padding:0.55rem 0.8rem 0;
+    background:var(--paper);border-bottom:1px solid var(--line);
+    scrollbar-width:none;
+  }
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{
+    flex:0 0 auto;
+    background:none;border:none;color:var(--ink-soft);
+    font-family:inherit;font-size:0.92rem;letter-spacing:0.12em;
+    padding:0.55rem 0.95rem 0.65rem;cursor:pointer;position:relative;
+    min-height:44px;
+  }
+  nav.tabs button.active{color:var(--ink);}
+  nav.tabs button.active::after{
+    content:"";position:absolute;left:0.9rem;right:0.9rem;bottom:-1px;height:2px;
+    background:var(--vermilion);
+  }
+  nav.tabs button .count{
+    font-size:0.62rem;color:var(--ink-faint);margin-left:0.15rem;
+  }
+
+  /* ---------- List ---------- */
+  main{flex:1;padding:0.4rem 0.9rem 3rem;}
+  .empty-state{
+    text-align:center;color:var(--ink-soft);font-size:0.85rem;
+    padding:3.5rem 1rem;line-height:2;
+  }
+  ul.item-list{list-style:none;margin:0;padding:0;}
+  li.item-row{
+    border-bottom:1px solid var(--line);
+    padding:0.85rem 0.1rem;
+    display:flex;align-items:center;gap:0.8rem;
+  }
+  li.item-row:first-child{border-top:1px solid var(--line);}
+  .item-main{
+    flex:1;min-width:0;background:none;border:none;text-align:left;cursor:pointer;
+    padding:0.35rem 0.2rem;font-family:inherit;color:inherit;min-height:44px;
+    display:flex;flex-direction:column;justify-content:center;gap:0.25rem;
+    border-radius:3px;
+  }
+  .item-main:active{background:var(--paper-deep);}
+  .item-main[disabled]{cursor:default;}
+  .item-name{font-size:0.98rem;letter-spacing:0.02em;}
+  .item-sub{font-size:0.7rem;color:var(--ink-soft);letter-spacing:0.02em;}
+  .item-sub .na{color:var(--ink-faint);}
+
+  .stamp{
+    width:52px;height:52px;flex:0 0 auto;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    border:1.4px solid var(--line);
+    font-size:0.72rem;color:var(--ink-faint);letter-spacing:0.04em;line-height:1.25;
+    background:var(--paper-raised);
+  }
+  .stamp.on{
+    border-color:var(--vermilion);
+    color:var(--vermilion);
+    background:#fbf1ee;
+    box-shadow:inset 0 0 0 1px rgba(184,59,38,0.15);
+  }
+  .stamp .stamp-date{font-size:0.68rem;font-weight:600;}
+  .stamp .stamp-mark{font-size:0.9rem;}
+
+  .row-side{display:flex;flex-direction:column;align-items:flex-end;gap:0.4rem;flex:0 0 auto;}
+  .ghost-btn{
+    background:none;border:none;color:var(--ink-faint);font-family:inherit;
+    font-size:0.68rem;letter-spacing:0.04em;cursor:pointer;
+    padding:0.3rem 0.1rem;min-height:32px;
+  }
+  .ghost-btn:hover{color:var(--vermilion-soft);}
+
+  .reorder-controls{display:flex;gap:0.15rem;}
+  .reorder-controls button{
+    width:34px;height:34px;border:1px solid var(--line);background:var(--paper-raised);
+    border-radius:4px;color:var(--ink-soft);cursor:pointer;font-size:0.85rem;
+  }
+  .reorder-controls button:disabled{opacity:0.25;cursor:default;}
+
+  .add-item-btn{
+    width:100%;margin-top:1rem;padding:0.9rem;background:none;
+    border:1px dashed var(--line);border-radius:4px;color:var(--ink-soft);
+    font-family:inherit;font-size:0.85rem;cursor:pointer;letter-spacing:0.05em;
+    min-height:44px;
+  }
+  .add-item-btn:hover{border-color:var(--vermilion-soft);color:var(--vermilion-soft);}
+
+  .mode-banner{
+    display:flex;align-items:center;justify-content:space-between;
+    background:var(--paper-deep);border-radius:4px;padding:0.6rem 0.9rem;
+    font-size:0.75rem;color:var(--ink-soft);margin-bottom:0.4rem;
+  }
+  .mode-banner button{
+    background:none;border:1px solid var(--line);border-radius:3px;
+    padding:0.3rem 0.7rem;font-family:inherit;font-size:0.72rem;color:var(--ink);cursor:pointer;
+    min-height:34px;
+  }
+
+  /* ---------- Modal / Overlay ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(59,56,53,0.45);
+    display:flex;align-items:flex-end;justify-content:center;z-index:100;
+    padding:0;
+  }
+  .overlay.center{align-items:center;padding:1.2rem;}
+  .overlay[hidden]{display:none;}
+  .sheet{
+    background:var(--paper);width:100%;max-width:640px;max-height:88vh;overflow-y:auto;
+    border-radius:14px 14px 0 0;padding:1.3rem 1.3rem calc(1.6rem + env(safe-area-inset-bottom,0px));
+    box-shadow:0 -6px 30px rgba(0,0,0,0.15);
+  }
+  .overlay.center .sheet{border-radius:8px;max-height:80vh;}
+  .sheet h2{margin:0 0 1rem;font-size:1.05rem;letter-spacing:0.05em;padding-right:2rem;}
+  .sheet-close{
+    position:absolute;top:0.6rem;right:0.6rem;
+  }
+  .sheet-wrap{position:relative;}
+
+  .field{margin-bottom:1.1rem;}
+  .field label{display:block;font-size:0.78rem;color:var(--ink-soft);margin-bottom:0.4rem;}
+  .field select, .field input[type=text]{
+    width:100%;font-family:inherit;font-size:0.95rem;padding:0.6rem 0.7rem;
+    border:1px solid var(--line);border-radius:4px;background:var(--paper-raised);color:var(--ink);
+    min-height:44px;
+  }
+  .field-row{display:flex;align-items:center;justify-content:space-between;padding:0.7rem 0;border-bottom:1px solid var(--line);}
+  .field-row:last-child{border-bottom:none;}
+  .field-row .lbl{font-size:0.88rem;}
+  .field-row .sub{font-size:0.68rem;color:var(--ink-soft);margin-top:0.15rem;}
+
+  .switch{
+    position:relative;width:46px;height:26px;flex:0 0 auto;
+  }
+  .switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;}
+  .switch .track{
+    position:absolute;inset:0;background:var(--line);border-radius:13px;transition:background 0.15s ease;
+  }
+  .switch .knob{
+    position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;
+    background:var(--paper-raised);box-shadow:0 1px 3px rgba(0,0,0,0.25);transition:left 0.15s ease;
+  }
+  .switch input:checked + .track{background:var(--vermilion-soft);}
+  .switch input:checked + .track + .knob{left:22px;}
+
+  .radio-group{display:flex;flex-direction:column;gap:0.5rem;}
+  .radio-opt{
+    display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.2rem;cursor:pointer;
+    min-height:44px;
+  }
+  .radio-opt input{width:18px;height:18px;accent-color:var(--vermilion);}
+  .radio-opt .ex{color:var(--ink-soft);font-size:0.76rem;}
+
+  .btn{
+    font-family:inherit;font-size:0.86rem;padding:0.65rem 1.1rem;border-radius:4px;cursor:pointer;
+    min-height:44px;letter-spacing:0.03em;
+  }
+  .btn.primary{background:var(--vermilion);border:1px solid var(--vermilion);color:#fff;}
+  .btn.primary:hover{background:#9e3220;}
+  .btn.plain{background:none;border:1px solid var(--line);color:var(--ink);}
+  .btn.plain:hover{border-color:var(--ink-soft);}
+  .btn.danger{background:none;border:1px solid var(--vermilion-soft);color:var(--vermilion);}
+  .btn-row{display:flex;gap:0.6rem;margin-top:0.4rem;}
+  .btn-row .btn{flex:1;}
+
+  .help-body p{font-size:0.85rem;margin:0 0 0.9rem;}
+  .help-body h3{font-size:0.85rem;margin:1.1rem 0 0.4rem;color:var(--vermilion-soft);letter-spacing:0.04em;}
+
+  .timeline{list-style:none;margin:0;padding:0;}
+  .timeline li{
+    display:flex;justify-content:space-between;padding:0.55rem 0.1rem;border-bottom:1px solid var(--line);
+    font-size:0.85rem;
+  }
+  .timeline li .yr{color:var(--ink-soft);}
+
+  /* ---------- Lock screen ---------- */
+  #lockScreen{
+    position:fixed;inset:0;background:var(--paper);z-index:200;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.6rem;
+    padding:2rem;
+  }
+  #lockScreen[hidden]{display:none;}
+  #lockScreen .title{font-size:1.05rem;letter-spacing:0.08em;}
+  .pin-dots{display:flex;gap:0.9rem;}
+  .pin-dots span{
+    width:14px;height:14px;border-radius:50%;border:1.4px solid var(--ink-soft);
+  }
+  .pin-dots span.filled{background:var(--vermilion);border-color:var(--vermilion);}
+  .pin-dots.shake{animation:shake 0.35s;}
+  @keyframes shake{
+    0%,100%{transform:translateX(0);}
+    25%{transform:translateX(-8px);}
+    75%{transform:translateX(8px);}
+  }
+  .keypad{display:grid;grid-template-columns:repeat(3,64px);gap:0.9rem;}
+  .keypad button{
+    width:64px;height:64px;border-radius:50%;border:1px solid var(--line);background:var(--paper-raised);
+    font-family:inherit;font-size:1.15rem;color:var(--ink);cursor:pointer;
+  }
+  .keypad button:active{background:var(--paper-deep);}
+  .keypad button.empty{visibility:hidden;}
+  #lockScreen .lock-err{font-size:0.75rem;color:var(--vermilion);min-height:1.2em;}
+
+  @media (prefers-reduced-motion: reduce){
+    .pin-dots.shake{animation:none;}
+    *{transition:none !important;}
+  }
+
+  footer.app-footer p a{color:#666;text-decoration:underline;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div id="lockScreen" hidden>
+    <div class="title">パスコードを入力してください</div>
+    <div class="pin-dots" id="pinDots">
+      <span></span><span></span><span></span><span></span>
+    </div>
+    <div class="lock-err" id="lockErr"></div>
+    <div class="keypad" id="keypad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button class="empty"></button><button data-k="0">0</button><button data-k="back">⌫</button>
+    </div>
+  </div>
+
+  <header class="top">
+    <div class="top-row">
+      <div class="brand">
+        <h1>そむごよみ</h1>
+        <p>私だけの「今年初めて」を記録するアプリ</p>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="btnReorder" title="並べ替え" aria-label="並べ替えモード">⇅</button>
+        <button class="icon-btn" id="btnHelp" title="使い方" aria-label="使い方">?</button>
+        <button class="icon-btn" id="btnSettings" title="設定" aria-label="設定">⚙</button>
+      </div>
+    </div>
+    <div class="year-row">
+      <button id="yearPrev" aria-label="前の年へ">‹</button>
+      <span class="year-label" id="yearLabel">2026年</span>
+      <button id="yearNext" aria-label="次の年へ">›</button>
+    </div>
+    <div class="year-note" id="yearNote" hidden>この年を振り返っています（新しい記録はできません）</div>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <main id="main">
+    <div id="reorderBanner" class="mode-banner" hidden>
+      <span>並べ替えモード：矢印で順番を入れ替えできます</span>
+      <button id="reorderDone">完了</button>
+    </div>
+    <ul class="item-list" id="itemList"></ul>
+    <button class="add-item-btn" id="addItemBtn">＋ 新しい季節のタネを加える</button>
+  </main>
+</div>
+
+<!-- 詳細ダイアログ -->
+<div class="overlay center" id="detailOverlay" hidden>
+  <div class="sheet-wrap" style="width:100%;max-width:640px;">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="detailClose" aria-label="閉じる">✕</button>
+      <h2 id="detailTitle"></h2>
+      <div id="detailBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 項目追加ダイアログ -->
+<div class="overlay" id="addOverlay" hidden>
+  <div class="sheet-wrap" style="width:100%;">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="addClose" aria-label="閉じる">✕</button>
+      <h2>新しい季節のタネ</h2>
+      <div class="field">
+        <label for="addSeason">季節</label>
+        <select id="addSeason">
+          <option value="spring">春</option>
+          <option value="summer">夏</option>
+          <option value="autumn">秋</option>
+          <option value="winter">冬</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="addName">名前</label>
+        <input type="text" id="addName" maxlength="30" placeholder="例：夕立の匂い">
+      </div>
+      <div class="btn-row">
+        <button class="btn plain" id="addCancel">やめる</button>
+        <button class="btn primary" id="addSubmit">加える</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 項目編集ダイアログ -->
+<div class="overlay" id="editOverlay" hidden>
+  <div class="sheet-wrap" style="width:100%;">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="editClose" aria-label="閉じる">✕</button>
+      <h2>名前を変える</h2>
+      <div class="field">
+        <label for="editName">名前</label>
+        <input type="text" id="editName" maxlength="30">
+      </div>
+      <div class="btn-row">
+        <button class="btn plain" id="editCancel">やめる</button>
+        <button class="btn primary" id="editSubmit">変える</button>
+      </div>
+      <div class="btn-row" id="editDeleteRow" hidden>
+        <button class="btn danger" id="editDelete" style="width:100%;">この項目を削除する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 設定ダイアログ -->
+<div class="overlay" id="settingsOverlay" hidden>
+  <div class="sheet-wrap" style="width:100%;">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="settingsClose" aria-label="閉じる">✕</button>
+      <h2>設定</h2>
+
+      <div class="field">
+        <label>日付の表記</label>
+        <div class="radio-group">
+          <label class="radio-opt">
+            <input type="radio" name="dateStyle" value="standard">
+            <span>標準数字 <span class="ex">（例：3/15）</span></span>
+          </label>
+          <label class="radio-opt">
+            <input type="radio" name="dateStyle" value="wa">
+            <span>和数字 <span class="ex">（例：三月十五日）</span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div>
+          <div class="lbl">パスコードロック</div>
+          <div class="sub">起動時にパスコードを求めます</div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="passcodeToggle">
+          <span class="track"></span>
+          <span class="knob"></span>
+        </label>
+      </div>
+      <div class="field-row" id="passcodeChangeRow" hidden>
+        <div class="lbl">パスコードを変更する</div>
+        <button class="btn plain" id="passcodeChangeBtn">変更</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- パスコード設定ダイアログ -->
+<div class="overlay center" id="pinSetupOverlay" hidden>
+  <div class="sheet-wrap" style="width:100%;max-width:420px;">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="pinSetupClose" aria-label="閉じる">✕</button>
+      <h2 id="pinSetupTitle">パスコードを設定</h2>
+      <p style="font-size:0.8rem;color:var(--ink-soft);margin-top:-0.4rem;">半角数字4桁を入力してください</p>
+      <div class="field">
+        <label id="pinSetupLabel1">新しいパスコード</label>
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="pinInput1" style="width:100%;font-size:1.3rem;letter-spacing:0.5em;text-align:center;padding:0.6rem;border:1px solid var(--line);border-radius:4px;">
+      </div>
+      <div class="field" id="pinInput2Wrap">
+        <label>もう一度入力してください</label>
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" id="pinInput2" style="width:100%;font-size:1.3rem;letter-spacing:0.5em;text-align:center;padding:0.6rem;border:1px solid var(--line);border-radius:4px;">
+      </div>
+      <div class="lock-err" id="pinSetupErr" style="text-align:center;margin-bottom:0.6rem;"></div>
+      <div class="btn-row">
+        <button class="btn plain" id="pinSetupCancel">やめる</button>
+        <button class="btn primary" id="pinSetupOk">決定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 使い方オーバーレイ -->
+<div class="overlay center" id="helpOverlay" hidden>
+  <div class="sheet-wrap" style="width:100%;">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="helpClose" aria-label="閉じる">✕</button>
+      <h2>そむごよみ の使い方</h2>
+      <div class="help-body">
+        <p>公式の開花日や暦の行事ではなく、あなた自身が日々の暮らしのなかで感じた「季節のはじまり」を、そっと記録するための場所です。</p>
+        <h3>打点する</h3>
+        <p>項目をタップすると、その日の日付が朱印のように静かに刻まれます。もう一度タップすると、記録の取り消しを確認します。</p>
+        <h3>「見送り」とは</h3>
+        <p>今年はまだ出会っていない項目や、ご自身の暮らしに合わない項目は「見送る」を選んでください。「見送り」タブに移り、記録を急かされることはありません。いつでも元の季節に戻せます。</p>
+        <h3>年を振り返る</h3>
+        <p>ヘッダーの年を切り替えると、その年の記録の様子を振り返れます。過去の年を見ている間は、新しい打点はできません。</p>
+        <h3>パスコードの設定</h3>
+        <p>設定画面の「パスコードロック」をオンにし、4桁の数字を2回入力すると、次回の起動からロックがかかります。オフに戻すときは、現在のパスコードの入力が必要です。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  'use strict';
+
+  /* ================= データ定義 ================= */
+  var SEASON_LABELS = { spring:'春', summer:'夏', autumn:'秋', winter:'冬' };
+  var SEASON_ORDER = ['spring','summer','autumn','winter'];
+
+  var PRESET_NAMES = {
+    spring: ["沈丁花の匂い","薄着で外出する","桜吹雪を浴びる","花粉に涙ぐむ","つくしを見つける","桜を見上げる","半袖を着る","苺のショートケーキ","お花見をする","蝶々を見かける","新生活の段ボールの匂い","冬靴をしまう","たけのこご飯を食べる","桜餅を食べる","窓を開けて眠る","春一番が吹く","若葉の匂いを感じる","うぐいすの声を聞く","春キャベツを食べる","制服を衣替えする","桜の下で写真を撮る","タンポポの綿毛を飛ばす","蓮華畑を見る","春の遠足のお弁当","アスパラガスを食べる"],
+    summer: ["冷房をつける","麦茶を沸かす","セミの声を聞く","かき氷を食べる","花火を見る","蚊取り線香をつける","スイカを食べる","素麺を茹でる","浴衣を着る","入道雲を見る","汗だくで帰宅する","扇風機を出す","プール開きをする","サンダルを履く","打ち水をする","蝉の抜け殻を見つける","夕立にあう","蚊に刺される","網戸にする","朝顔が咲く","縁側でスイカ割り","熱帯夜で寝苦しい","日焼け止めを塗る","麦わら帽子をかぶる","冷やし中華を食べる"],
+    autumn: ["金木犀の匂い","朝晩の冷え込みを感じる","おでんを食べる","紅葉を見る","秋刀魚を焼く","栗ご飯を食べる","長袖を着る","虫の声を聞く","月見をする","落ち葉を踏む","布団を厚くする","焼き芋を買う","柿を食べる","冬服を出す","どんぐりを拾う","秋の夕焼けを見る","新米を食べる","マフラーを巻く","きのこ料理を食べる","肌寒くて羽織る","運動会の歓声を聞く","夜長に読書をする","ハロウィンの飾りを見る","温かい飲み物が恋しくなる","澄んだ秋の空気を吸う"],
+    winter: ["息が白い","こたつを出す","肉まんを買う","雪を見る","マフラーで顔を埋める","熱燗を飲む","鍋を囲む","イルミネーションを見る","手袋をする","年賀状を書く","初雪が降る","カイロを貼る","蜜柑を食べる","冬タイヤに交換する","クリスマスの飾りを見る","湯たんぽを使う","布団から出たくなくなる","冷たい空気で頬が痛む","雪かきをする","大晦日の空気を感じる","除夜の鐘を聞く","初詣に行く","寒さで肩をすくめる","温泉が恋しくなる","ストーブをつける"]
+  };
+
+  function buildDefaultItems(){
+    var items = [];
+    SEASON_ORDER.forEach(function(season){
+      PRESET_NAMES[season].forEach(function(name, idx){
+        items.push({
+          id: season + '-' + (idx+1),
+          season: season,
+          name: name,
+          custom: false,
+          skipped: false,
+          order: idx
+        });
+      });
+    });
+    return items;
+  }
+
+  var STORAGE_KEY = 'somugoyomi-data-v1';
+  var memoryFallback = null; // localStorageが使えない場合の退避先
+
+  function defaultState(){
+    return {
+      items: buildDefaultItems(),
+      records: {}, // itemId -> [{year, month, day}]
+      settings: { dateStyle:'standard', passcodeEnabled:false, passcode:null }
+    };
+  }
+
+  function loadState(){
+    try{
+      var raw = window.localStorage.getItem(STORAGE_KEY);
+      if(raw){
+        var parsed = JSON.parse(raw);
+        if(parsed && parsed.items && parsed.records && parsed.settings){
+          return parsed;
+        }
+      }
+    }catch(e){ /* localStorage不可・破損 → デフォルトへ */ }
+    if(memoryFallback) return memoryFallback;
+    return defaultState();
+  }
+
+  function saveState(){
+    try{
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      memoryFallback = null;
+    }catch(e){
+      memoryFallback = state; // 保存できない環境ではメモリ内にのみ保持
+    }
+  }
+
+  var state = loadState();
+
+  /* ================= 補助関数 ================= */
+  var KANJI_DIGIT = ['','一','二','三','四','五','六','七','八','九'];
+  function numberToKanji(n){
+    n = Math.round(n);
+    if(n <= 0) return String(n);
+    if(n < 10) return KANJI_DIGIT[n];
+    if(n === 10) return '十';
+    if(n < 20) return '十' + KANJI_DIGIT[n-10];
+    if(n === 20) return '二十';
+    if(n < 30) return '二十' + KANJI_DIGIT[n-20];
+    if(n === 30) return '三十';
+    return '三十' + KANJI_DIGIT[n-30];
+  }
+
+  function formatDate(year, month, day){
+    try{
+      if(state.settings.dateStyle === 'wa'){
+        return numberToKanji(month) + '月' + numberToKanji(day) + '日';
+      }
+      return month + '/' + day;
+    }catch(e){
+      return month + '/' + day;
+    }
+  }
+
+  function todayParts(){
+    var d = new Date();
+    return { year:d.getFullYear(), month:d.getMonth()+1, day:d.getDate() };
+  }
+
+  var REAL_TODAY = todayParts();
+  var referenceYear = REAL_TODAY.year;
+
+  function getRecordsFor(itemId){
+    return (state.records[itemId] || []);
+  }
+  function getRecordForYear(itemId, year){
+    var list = getRecordsFor(itemId);
+    for(var i=0;i<list.length;i++){
+      if(list[i].year === year) return list[i];
+    }
+    return null;
+  }
+  function setRecordForYear(itemId, year, month, day){
+    if(!state.records[itemId]) state.records[itemId] = [];
+    var list = state.records[itemId];
+    for(var i=0;i<list.length;i++){
+      if(list[i].year === year){ list[i].month = month; list[i].day = day; saveState(); return; }
+    }
+    list.push({ year:year, month:month, day:day });
+    saveState();
+  }
+  function removeRecordForYear(itemId, year){
+    if(!state.records[itemId]) return;
+    state.records[itemId] = state.records[itemId].filter(function(r){ return r.year !== year; });
+    saveState();
+  }
+
+  function findItem(id){
+    for(var i=0;i<state.items.length;i++){ if(state.items[i].id === id) return state.items[i]; }
+    return null;
+  }
+
+  /* ================= 画面状態 ================= */
+  var currentTab = 'spring'; // spring/summer/autumn/winter/skipped
+  var reorderMode = false;
+
+  /* ================= タブ描画 ================= */
+  var tabsEl = document.getElementById('tabs');
+  function renderTabs(){
+    if(!tabsEl) return;
+    var tabs = SEASON_ORDER.concat(['skipped']);
+    var labels = { spring:'春', summer:'夏', autumn:'秋', winter:'冬', skipped:'見送り' };
+    tabsEl.innerHTML = '';
+    tabs.forEach(function(t){
+      var btn = document.createElement('button');
+      var count;
+      if(t === 'skipped'){
+        count = state.items.filter(function(i){ return i.skipped; }).length;
+      } else {
+        count = state.items.filter(function(i){ return i.season === t && !i.skipped; }).length;
+      }
+      btn.textContent = labels[t];
+      var c = document.createElement('span');
+      c.className = 'count';
+      c.textContent = '(' + count + ')';
+      btn.appendChild(c);
+      if(t === currentTab) btn.className = 'active';
+      btn.addEventListener('click', function(){
+        currentTab = t;
+        renderTabs();
+        renderList();
+      });
+      tabsEl.appendChild(btn);
+    });
+  }
+
+  /* ================= 年ヘッダー描画 ================= */
+  var yearLabelEl = document.getElementById('yearLabel');
+  var yearNoteEl = document.getElementById('yearNote');
+  var yearPrevBtn = document.getElementById('yearPrev');
+  var yearNextBtn = document.getElementById('yearNext');
+  var MIN_YEAR = REAL_TODAY.year - 12;
+
+  function renderYearHeader(){
+    if(yearLabelEl) yearLabelEl.textContent = referenceYear + '年';
+    if(yearNoteEl) yearNoteEl.hidden = (referenceYear === REAL_TODAY.year);
+    if(yearNextBtn) yearNextBtn.disabled = (referenceYear >= REAL_TODAY.year);
+    if(yearPrevBtn) yearPrevBtn.disabled = (referenceYear <= MIN_YEAR);
+  }
+  if(yearPrevBtn) yearPrevBtn.addEventListener('click', function(){
+    if(referenceYear > MIN_YEAR){ referenceYear--; renderYearHeader(); renderList(); }
+  });
+  if(yearNextBtn) yearNextBtn.addEventListener('click', function(){
+    if(referenceYear < REAL_TODAY.year){ referenceYear++; renderYearHeader(); renderList(); }
+  });
+
+  /* ================= 並べ替えモード ================= */
+  var btnReorder = document.getElementById('btnReorder');
+  var reorderBanner = document.getElementById('reorderBanner');
+  var reorderDoneBtn = document.getElementById('reorderDone');
+  function setReorderMode(on){
+    reorderMode = on;
+    if(reorderBanner) reorderBanner.hidden = !on;
+    if(btnReorder) btnReorder.style.color = on ? 'var(--vermilion)' : '';
+    renderList();
+  }
+  if(btnReorder) btnReorder.addEventListener('click', function(){ setReorderMode(!reorderMode); });
+  if(reorderDoneBtn) reorderDoneBtn.addEventListener('click', function(){ setReorderMode(false); });
+
+  /* ================= リスト描画 ================= */
+  var itemListEl = document.getElementById('itemList');
+  var addItemBtn = document.getElementById('addItemBtn');
+
+  function itemsForCurrentTab(){
+    var list;
+    if(currentTab === 'skipped'){
+      list = state.items.filter(function(i){ return i.skipped; });
+    } else {
+      list = state.items.filter(function(i){ return i.season === currentTab && !i.skipped; });
+    }
+    list.sort(function(a,b){ return (a.order||0) - (b.order||0); });
+    return list;
+  }
+
+  function renderList(){
+    if(!itemListEl) return;
+    try{
+      itemListEl.innerHTML = '';
+      var list = itemsForCurrentTab();
+      if(addItemBtn) addItemBtn.hidden = (currentTab === 'skipped');
+
+      if(list.length === 0){
+        var empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = (currentTab === 'skipped')
+          ? '見送っている項目はありません。'
+          : 'まだ項目がありません。下から加えてください。';
+        itemListEl.appendChild(empty);
+        return;
+      }
+
+      list.forEach(function(item, idx){
+        var li = document.createElement('li');
+        li.className = 'item-row';
+
+        var mainBtn = document.createElement('button');
+        mainBtn.className = 'item-main';
+        var isPastYear = (referenceYear !== REAL_TODAY.year);
+        var rec = getRecordForYear(item.id, referenceYear);
+        var prevRec = getRecordForYear(item.id, referenceYear - 1);
+
+        var nameDiv = document.createElement('div');
+        nameDiv.className = 'item-name';
+        nameDiv.textContent = item.name;
+        mainBtn.appendChild(nameDiv);
+
+        var subDiv = document.createElement('div');
+        subDiv.className = 'item-sub';
+        subDiv.textContent = '去年： ' + (prevRec ? formatDate(prevRec.year, prevRec.month, prevRec.day) : '－');
+        mainBtn.appendChild(subDiv);
+
+        if(currentTab !== 'skipped' && isPastYear){
+          mainBtn.disabled = true;
+        }
+        mainBtn.addEventListener('click', function(){
+          if(currentTab === 'skipped') { openDetail(item.id); return; }
+          if(isPastYear) return;
+          handleTap(item.id);
+        });
+        li.appendChild(mainBtn);
+
+        var stamp = document.createElement('div');
+        stamp.className = 'stamp' + (rec ? ' on' : '');
+        if(rec){
+          var d1 = document.createElement('div');
+          d1.className = 'stamp-mark';
+          d1.textContent = '印';
+          var d2 = document.createElement('div');
+          d2.className = 'stamp-date';
+          d2.textContent = formatDate(rec.year, rec.month, rec.day);
+          stamp.appendChild(d1); stamp.appendChild(d2);
+        } else {
+          var d3 = document.createElement('div');
+          d3.className = 'stamp-mark';
+          d3.textContent = '未';
+          stamp.appendChild(d3);
+        }
+        stamp.addEventListener('click', function(){
+          if(currentTab === 'skipped'){ openDetail(item.id); return; }
+          if(isPastYear) return;
+          handleTap(item.id);
+        });
+        li.appendChild(stamp);
+
+        var side = document.createElement('div');
+        side.className = 'row-side';
+
+        if(reorderMode && currentTab !== 'skipped'){
+          var rc = document.createElement('div');
+          rc.className = 'reorder-controls';
+          var up = document.createElement('button');
+          up.textContent = '▲';
+          up.disabled = (idx === 0);
+          up.addEventListener('click', function(){ moveItem(item.id, -1); });
+          var down = document.createElement('button');
+          down.textContent = '▼';
+          down.disabled = (idx === list.length - 1);
+          down.addEventListener('click', function(){ moveItem(item.id, 1); });
+          rc.appendChild(up); rc.appendChild(down);
+          side.appendChild(rc);
+
+          var editBtn = document.createElement('button');
+          editBtn.className = 'ghost-btn';
+          editBtn.textContent = '編集';
+          editBtn.addEventListener('click', function(){ openEdit(item.id); });
+          side.appendChild(editBtn);
+        } else if(currentTab === 'skipped'){
+          var back = document.createElement('button');
+          back.className = 'ghost-btn';
+          back.textContent = '戻す';
+          back.addEventListener('click', function(){ unskipItem(item.id); });
+          side.appendChild(back);
+          var detailBtn = document.createElement('button');
+          detailBtn.className = 'ghost-btn';
+          detailBtn.textContent = '詳細';
+          detailBtn.addEventListener('click', function(){ openDetail(item.id); });
+          side.appendChild(detailBtn);
+        } else {
+          var skip = document.createElement('button');
+          skip.className = 'ghost-btn';
+          skip.textContent = '見送る';
+          skip.addEventListener('click', function(){ skipItem(item.id); });
+          side.appendChild(skip);
+          var detailBtn2 = document.createElement('button');
+          detailBtn2.className = 'ghost-btn';
+          detailBtn2.textContent = '詳細';
+          detailBtn2.addEventListener('click', function(){ openDetail(item.id); });
+          side.appendChild(detailBtn2);
+        }
+
+        li.appendChild(side);
+        itemListEl.appendChild(li);
+      });
+    }catch(e){
+      itemListEl.innerHTML = '<div class="empty-state">表示中に問題が起きました。ページを再読み込みしてください。</div>';
+    }
+  }
+
+  function handleTap(itemId){
+    var rec = getRecordForYear(itemId, referenceYear);
+    if(rec){
+      var ok = window.confirm('この年の記録を取り消しますか？');
+      if(ok){ removeRecordForYear(itemId, referenceYear); renderList(); }
+      return;
+    }
+    setRecordForYear(itemId, referenceYear, REAL_TODAY.month, REAL_TODAY.day);
+    renderList();
+  }
+
+  function skipItem(itemId){
+    var item = findItem(itemId);
+    if(!item) return;
+    item.skipped = true;
+    saveState();
+    renderTabs();
+    renderList();
+  }
+  function unskipItem(itemId){
+    var item = findItem(itemId);
+    if(!item) return;
+    item.skipped = false;
+    saveState();
+    renderTabs();
+    renderList();
+  }
+
+  function moveItem(itemId, dir){
+    var item = findItem(itemId);
+    if(!item) return;
+    var siblings = state.items.filter(function(i){ return i.season === item.season && !i.skipped; })
+      .sort(function(a,b){ return (a.order||0)-(b.order||0); });
+    var idx = siblings.findIndex(function(i){ return i.id === itemId; });
+    var swapIdx = idx + dir;
+    if(swapIdx < 0 || swapIdx >= siblings.length) return;
+    var a = siblings[idx], b = siblings[swapIdx];
+    var tmp = a.order; a.order = b.order; b.order = tmp;
+    saveState();
+    renderList();
+  }
+
+  /* ================= 詳細ダイアログ ================= */
+  var detailOverlay = document.getElementById('detailOverlay');
+  var detailTitle = document.getElementById('detailTitle');
+  var detailBody = document.getElementById('detailBody');
+  var detailClose = document.getElementById('detailClose');
+
+  function openDetail(itemId){
+    var item = findItem(itemId);
+    if(!item || !detailOverlay) return;
+    detailTitle.textContent = item.name;
+    var records = getRecordsFor(itemId).slice().sort(function(a,b){ return b.year - a.year; });
+    detailBody.innerHTML = '';
+    if(records.length === 0){
+      var p = document.createElement('div');
+      p.className = 'empty-state';
+      p.style.padding = '1.5rem 0.5rem';
+      p.textContent = 'まだ記録がありません。';
+      detailBody.appendChild(p);
+    } else {
+      var ul = document.createElement('ul');
+      ul.className = 'timeline';
+      records.forEach(function(r){
+        var li = document.createElement('li');
+        var y = document.createElement('span');
+        y.className = 'yr';
+        y.textContent = r.year + '年';
+        var d = document.createElement('span');
+        d.textContent = formatDate(r.year, r.month, r.day);
+        li.appendChild(y); li.appendChild(d);
+        ul.appendChild(li);
+      });
+      detailBody.appendChild(ul);
+    }
+    detailOverlay.hidden = false;
+  }
+  if(detailClose) detailClose.addEventListener('click', function(){ detailOverlay.hidden = true; });
+  if(detailOverlay) detailOverlay.addEventListener('click', function(e){ if(e.target === detailOverlay) detailOverlay.hidden = true; });
+
+  /* ================= 項目追加 ================= */
+  var addItemBtnEl = document.getElementById('addItemBtn');
+  var addOverlay = document.getElementById('addOverlay');
+  var addSeason = document.getElementById('addSeason');
+  var addName = document.getElementById('addName');
+  var addClose = document.getElementById('addClose');
+  var addCancel = document.getElementById('addCancel');
+  var addSubmit = document.getElementById('addSubmit');
+
+  if(addItemBtnEl) addItemBtnEl.addEventListener('click', function(){
+    if(addSeason) addSeason.value = (SEASON_ORDER.indexOf(currentTab) >= 0) ? currentTab : 'spring';
+    if(addName) addName.value = '';
+    if(addOverlay) addOverlay.hidden = false;
+  });
+  function closeAdd(){ if(addOverlay) addOverlay.hidden = true; }
+  if(addClose) addClose.addEventListener('click', closeAdd);
+  if(addCancel) addCancel.addEventListener('click', closeAdd);
+  if(addOverlay) addOverlay.addEventListener('click', function(e){ if(e.target === addOverlay) closeAdd(); });
+  if(addSubmit) addSubmit.addEventListener('click', function(){
+    try{
+      var name = (addName.value || '').trim();
+      if(!name) return;
+      var season = addSeason.value;
+      var siblingOrders = state.items.filter(function(i){ return i.season === season; }).map(function(i){ return i.order||0; });
+      var maxOrder = siblingOrders.length ? Math.max.apply(null, siblingOrders) : -1;
+      state.items.push({
+        id: 'custom-' + Date.now(),
+        season: season,
+        name: name,
+        custom: true,
+        skipped: false,
+        order: maxOrder + 1
+      });
+      saveState();
+      closeAdd();
+      currentTab = season;
+      renderTabs();
+      renderList();
+    }catch(e){ /* 追加に失敗しても画面は維持 */ }
+  });
+
+  /* ================= 項目編集 ================= */
+  var editOverlay = document.getElementById('editOverlay');
+  var editName = document.getElementById('editName');
+  var editClose = document.getElementById('editClose');
+  var editCancel = document.getElementById('editCancel');
+  var editSubmit = document.getElementById('editSubmit');
+  var editDeleteRow = document.getElementById('editDeleteRow');
+  var editDelete = document.getElementById('editDelete');
+  var editingItemId = null;
+
+  function openEdit(itemId){
+    var item = findItem(itemId);
+    if(!item || !editOverlay) return;
+    editingItemId = itemId;
+    editName.value = item.name;
+    editDeleteRow.hidden = !item.custom;
+    editOverlay.hidden = false;
+  }
+  function closeEdit(){ if(editOverlay) editOverlay.hidden = true; editingItemId = null; }
+  if(editClose) editClose.addEventListener('click', closeEdit);
+  if(editCancel) editCancel.addEventListener('click', closeEdit);
+  if(editOverlay) editOverlay.addEventListener('click', function(e){ if(e.target === editOverlay) closeEdit(); });
+  if(editSubmit) editSubmit.addEventListener('click', function(){
+    try{
+      if(!editingItemId) return;
+      var item = findItem(editingItemId);
+      var name = (editName.value || '').trim();
+      if(!item || !name) return;
+      item.name = name;
+      saveState();
+      closeEdit();
+      renderList();
+    }catch(e){}
+  });
+  if(editDelete) editDelete.addEventListener('click', function(){
+    try{
+      if(!editingItemId) return;
+      var ok = window.confirm('この項目を削除します。記録も失われます。よろしいですか？');
+      if(!ok) return;
+      state.items = state.items.filter(function(i){ return i.id !== editingItemId; });
+      delete state.records[editingItemId];
+      saveState();
+      closeEdit();
+      renderTabs();
+      renderList();
+    }catch(e){}
+  });
+
+  /* ================= 設定ダイアログ ================= */
+  var btnSettings = document.getElementById('btnSettings');
+  var settingsOverlay = document.getElementById('settingsOverlay');
+  var settingsClose = document.getElementById('settingsClose');
+  var passcodeToggle = document.getElementById('passcodeToggle');
+  var passcodeChangeRow = document.getElementById('passcodeChangeRow');
+  var passcodeChangeBtn = document.getElementById('passcodeChangeBtn');
+
+  function renderSettings(){
+    try{
+      var radios = document.getElementsByName('dateStyle');
+      for(var i=0;i<radios.length;i++){ radios[i].checked = (radios[i].value === state.settings.dateStyle); }
+    }catch(e){}
+    if(passcodeToggle) passcodeToggle.checked = !!state.settings.passcodeEnabled;
+    if(passcodeChangeRow) passcodeChangeRow.hidden = !state.settings.passcodeEnabled;
+  }
+  if(btnSettings) btnSettings.addEventListener('click', function(){
+    renderSettings();
+    if(settingsOverlay) settingsOverlay.hidden = false;
+  });
+  if(settingsClose) settingsClose.addEventListener('click', function(){ settingsOverlay.hidden = true; });
+  if(settingsOverlay) settingsOverlay.addEventListener('click', function(e){ if(e.target === settingsOverlay) settingsOverlay.hidden = true; });
+
+  Array.prototype.forEach.call(document.getElementsByName('dateStyle'), function(radio){
+    radio.addEventListener('change', function(){
+      if(radio.checked){
+        state.settings.dateStyle = radio.value;
+        saveState();
+        renderList();
+      }
+    });
+  });
+
+  /* ---- パスコード設定・解除フロー ---- */
+  var pinSetupOverlay = document.getElementById('pinSetupOverlay');
+  var pinSetupTitle = document.getElementById('pinSetupTitle');
+  var pinSetupLabel1 = document.getElementById('pinSetupLabel1');
+  var pinInput1 = document.getElementById('pinInput1');
+  var pinInput2Wrap = document.getElementById('pinInput2Wrap');
+  var pinInput2 = document.getElementById('pinInput2');
+  var pinSetupErr = document.getElementById('pinSetupErr');
+  var pinSetupClose = document.getElementById('pinSetupClose');
+  var pinSetupCancel = document.getElementById('pinSetupCancel');
+  var pinSetupOk = document.getElementById('pinSetupOk');
+  var pinFlow = null; // 'enable' | 'disable' | 'change-verify' | 'change-new'
+  var pendingOldCode = null;
+
+  function isFourDigits(v){ return /^[0-9]{4}$/.test(v || ''); }
+
+  function openPinSetup(flow){
+    pinFlow = flow;
+    pinSetupErr.textContent = '';
+    pinInput1.value = '';
+    pinInput2.value = '';
+    if(flow === 'enable'){
+      pinSetupTitle.textContent = 'パスコードを設定';
+      pinSetupLabel1.textContent = '新しいパスコード（4桁）';
+      pinInput2Wrap.hidden = false;
+      pinInput2.parentElement.querySelector('label').textContent = 'もう一度入力してください';
+    } else if(flow === 'disable' || flow === 'change-verify'){
+      pinSetupTitle.textContent = '現在のパスコードを入力';
+      pinSetupLabel1.textContent = 'パスコード（4桁）';
+      pinInput2Wrap.hidden = true;
+    } else if(flow === 'change-new'){
+      pinSetupTitle.textContent = '新しいパスコード';
+      pinSetupLabel1.textContent = '新しいパスコード（4桁）';
+      pinInput2Wrap.hidden = false;
+      pinInput2.parentElement.querySelector('label').textContent = 'もう一度入力してください';
+    }
+    pinSetupOverlay.hidden = false;
+    setTimeout(function(){ try{ pinInput1.focus(); }catch(e){} }, 30);
+  }
+  function closePinSetup(){
+    pinSetupOverlay.hidden = true;
+    pinFlow = null;
+    renderSettings();
+  }
+  if(pinSetupClose) pinSetupClose.addEventListener('click', function(){
+    closePinSetup();
+    renderSettings();
+  });
+  if(pinSetupCancel) pinSetupCancel.addEventListener('click', function(){
+    closePinSetup();
+    renderSettings();
+  });
+  if(pinSetupOverlay) pinSetupOverlay.addEventListener('click', function(e){ if(e.target === pinSetupOverlay){ closePinSetup(); renderSettings(); } });
+
+  if(pinSetupOk) pinSetupOk.addEventListener('click', function(){
+    try{
+      var v1 = pinInput1.value.trim();
+      if(!isFourDigits(v1)){ pinSetupErr.textContent = '半角数字4桁で入力してください。'; return; }
+
+      if(pinFlow === 'enable' || pinFlow === 'change-new'){
+        var v2 = pinInput2.value.trim();
+        if(v1 !== v2){ pinSetupErr.textContent = '入力が一致しません。もう一度お試しください。'; return; }
+        state.settings.passcode = v1;
+        state.settings.passcodeEnabled = true;
+        saveState();
+        closePinSetup();
+      } else if(pinFlow === 'disable'){
+        if(v1 !== state.settings.passcode){ pinSetupErr.textContent = 'パスコードが違います。'; return; }
+        state.settings.passcodeEnabled = false;
+        state.settings.passcode = null;
+        saveState();
+        closePinSetup();
+      } else if(pinFlow === 'change-verify'){
+        if(v1 !== state.settings.passcode){ pinSetupErr.textContent = 'パスコードが違います。'; return; }
+        openPinSetup('change-new');
+      }
+    }catch(e){ pinSetupErr.textContent = '処理に失敗しました。もう一度お試しください。'; }
+  });
+
+  if(passcodeToggle) passcodeToggle.addEventListener('change', function(){
+    if(passcodeToggle.checked && !state.settings.passcodeEnabled){
+      passcodeToggle.checked = false; // 設定完了までは反映しない
+      openPinSetup('enable');
+    } else if(!passcodeToggle.checked && state.settings.passcodeEnabled){
+      passcodeToggle.checked = true; // 確認完了までは反映しない
+      openPinSetup('disable');
+    }
+  });
+  if(passcodeChangeBtn) passcodeChangeBtn.addEventListener('click', function(){
+    openPinSetup('change-verify');
+  });
+
+  /* ================= ヘルプ ================= */
+  var btnHelp = document.getElementById('btnHelp');
+  var helpOverlay = document.getElementById('helpOverlay');
+  var helpClose = document.getElementById('helpClose');
+  if(btnHelp) btnHelp.addEventListener('click', function(){ helpOverlay.hidden = false; });
+  if(helpClose) helpClose.addEventListener('click', function(){ helpOverlay.hidden = true; });
+  if(helpOverlay) helpOverlay.addEventListener('click', function(e){ if(e.target === helpOverlay) helpOverlay.hidden = true; });
+
+  /* ================= ロック画面 ================= */
+  var lockScreen = document.getElementById('lockScreen');
+  var pinDots = document.getElementById('pinDots');
+  var lockErr = document.getElementById('lockErr');
+  var keypad = document.getElementById('keypad');
+  var enteredPin = '';
+
+  function renderPinDots(){
+    if(!pinDots) return;
+    var spans = pinDots.querySelectorAll('span');
+    spans.forEach(function(s, i){
+      s.className = (i < enteredPin.length) ? 'filled' : '';
+    });
+  }
+  function initLock(){
+    if(!state.settings.passcodeEnabled || !state.settings.passcode){
+      if(lockScreen) lockScreen.hidden = true;
+      return;
+    }
+    if(lockScreen) lockScreen.hidden = false;
+    enteredPin = '';
+    renderPinDots();
+  }
+  if(keypad) keypad.addEventListener('click', function(e){
+    var btn = e.target.closest('button[data-k]');
+    if(!btn) return;
+    var k = btn.getAttribute('data-k');
+    if(k === 'back'){
+      enteredPin = enteredPin.slice(0, -1);
+      lockErr.textContent = '';
+      renderPinDots();
+      return;
+    }
+    if(enteredPin.length >= 4) return;
+    enteredPin += k;
+    renderPinDots();
+    if(enteredPin.length === 4){
+      setTimeout(function(){
+        try{
+          if(enteredPin === state.settings.passcode){
+            lockScreen.hidden = true;
+          } else {
+            lockErr.textContent = 'パスコードが違います。';
+            pinDots.classList.add('shake');
+            setTimeout(function(){
+              pinDots.classList.remove('shake');
+              enteredPin = '';
+              renderPinDots();
+            }, 350);
+          }
+        }catch(e){
+          lockScreen.hidden = true; // 万一の判定エラー時は締め出さない
+        }
+      }, 120);
+    }
+  });
+
+  /* ================= Service Worker 登録 ================= */
+  try{
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', function(){
+        try{
+          navigator.serviceWorker.register('./sw.js').catch(function(){ /* 登録失敗は無視して継続 */ });
+        }catch(e){}
+      });
+    }
+  }catch(e){}
+
+  /* ================= 初期化 ================= */
+  try{
+    renderTabs();
+    renderYearHeader();
+    renderList();
+    renderSettings();
+    initLock();
+  }catch(e){
+    /* 初期描画に失敗してもアプリ自体は残す */
+    try{ if(lockScreen) lockScreen.hidden = true; }catch(e2){}
+  }
+
+});
+</script>
+
+<footer style="text-align: center; font-size: 0.75rem; color: #888; margin-top: 3rem; padding: 1rem 0.5rem; line-height: 1.5;">
+  <p style="margin-bottom: 0.5rem;">【ご利用について】</p>
+  <p style="margin-bottom: 0.5rem;">本アプリの利用に伴うトラブルやデータ損失等について、開発者は一切の責任を負いかねます。</p>
+  <p style="margin-bottom: 0.5rem;">ご意見・不具合のご報告は X（<a href="https://x.com/lblt_labo" target="_blank" rel="noopener" style="color: #666; text-decoration: underline;">@lblt_labo</a>）までお願いいたします。</p>
+  <p style="margin-top: 0.5rem;"><a href="https://ofuse.me/lbltlabo/letter" target="_blank" rel="noopener noreferrer" style="color: #666; text-decoration: underline;">☕️ 開発者を応援する / メッセージを送る</a></p>
+</footer>
+</body>
+</html>
