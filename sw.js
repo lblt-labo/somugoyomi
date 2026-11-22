@@ -1,5 +1,5 @@
 // そむごよみ - Minimal Service Worker（ネットワーク優先・オフライン時はキャッシュ）
-var CACHE_NAME = 'somugoyomi-cache-v2';
+var CACHE_NAME = 'somugoyomi-cache-v3';
 var PRECACHE_URLS = [
   './',
   './index.html',
