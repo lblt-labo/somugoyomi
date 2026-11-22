@@ -2,24 +2,18 @@
   "name": "そむごよみ",
   "short_name": "そむごよみ",
   "description": "私だけの「今年初めて」を記録するアプリ",
+  "lang": "ja",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#F8F5F0",
   "theme_color": "#F8F5F0",
-  "lang": "ja",
   "icons": [
     {
-      "src": "./icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
+      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%23F8F5F0'/%3E%3Ccircle cx='96' cy='96' r='54' fill='%23B83B26'/%3E%3Ctext x='96' y='118' font-size='64' text-anchor='middle' fill='%23F8F5F0' font-family='serif'%3E%E5%88%9D%3C/text%3E%3C/svg%3E",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]

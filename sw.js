@@ -1,59 +1,48 @@
-// そむごよみ - Minimal Service Worker
-var CACHE_NAME = 'somugoyomi-cache-v1';
-var PRECACHE_URLS = [
-  './',
-  './index.html',
-  './manifest.json'
-];
+'use strict';
+
+var CACHE = 'somugoyomi-v1';
+var ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', function (event) {
-  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(PRECACHE_URLS).catch(function () {
-        // 一部のプリキャッシュに失敗してもインストール自体は継続する
-      });
-    })
+    caches.open(CACHE)
+      .then(function (cache) { return cache.addAll(ASSETS); })
+      .then(function () { return self.skipWaiting(); })
+      .catch(function () {})
   );
 });
 
 self.addEventListener('activate', function (event) {
   event.waitUntil(
-    caches.keys().then(function (keys) {
-      return Promise.all(
-        keys.map(function (key) {
-          if (key !== CACHE_NAME) {
-            return caches.delete(key);
-          }
-          return null;
-        })
-      );
-    }).then(function () {
-      return self.clients.claim();
-    })
+    caches.keys()
+      .then(function (keys) {
+        return Promise.all(keys.filter(function (k) { return k !== CACHE; }).map(function (k) { return caches.delete(k); }));
+      })
+      .then(function () { return self.clients.claim(); })
+      .catch(function () {})
   );
 });
 
 self.addEventListener('fetch', function (event) {
-  if (event.request.method !== 'GET') return;
+  var req = event.request;
+  if (req.method !== 'GET') return;
+  var url = new URL(req.url);
+  if (url.origin !== self.location.origin) return;
+
   event.respondWith(
-    caches.match(event.request).then(function (cached) {
-      if (cached) return cached;
-      return fetch(event.request).then(function (response) {
-        try {
-          if (response && response.status === 200 && response.type === 'basic') {
-            var copy = response.clone();
-            caches.open(CACHE_NAME).then(function (cache) {
-              cache.put(event.request, copy);
-            });
-          }
-        } catch (e) {
-          // キャッシュ更新に失敗しても通常のレスポンスは返す
+    caches.match(req).then(function (cached) {
+      var fetched = fetch(req).then(function (res) {
+        if (res && res.status === 200 && res.type === 'basic') {
+          var copy = res.clone();
+          caches.open(CACHE).then(function (cache) { cache.put(req, copy); }).catch(function () {});
         }
-        return response;
+        return res;
       }).catch(function () {
-        return caches.match('./index.html');
+        if (cached) return cached;
+        if (req.mode === 'navigate') return caches.match('./index.html');
+        return new Response('', { status: 503, statusText: 'Offline' });
       });
+      return cached || fetched;
     })
   );
 });
