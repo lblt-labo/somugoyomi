@@ -2,834 +2,1587 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>そむごよみ</title>
-<meta name="theme-color" content="#F8F5F0">
 <meta name="description" content="私だけの「今年初めて」を記録するアプリ">
-<link rel="manifest" href="manifest.json">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' fill='%23F8F5F0'/%3E%3Ccircle cx='96' cy='96' r='54' fill='%23B83B26'/%3E%3Ctext x='96' y='118' font-size='64' text-anchor='middle' fill='%23F8F5F0' font-family='serif'%3E%E5%88%9D%3C/text%3E%3C/svg%3E">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="そむごよみ">
+<meta property="og:description" content="私だけの「今年初めて」を記録するアプリ">
+<meta property="og:image" content="./ogp.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="そむごよみ">
+<meta name="twitter:description" content="私だけの「今年初めて」を記録するアプリ">
+<meta name="twitter:image" content="./ogp.png">
+
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<meta name="theme-color" content="#F8F5F0">
+
 <style>
-:root{
-  --bg:#F8F5F0;
-  --card:#FFFDF9;
-  --ink:#3B3835;
-  --muted:#6B645C;
-  --shu:#B83B26;
-  --line:#D9D1C4;
-  --focus:#1F4E79;
-}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;padding:0}
-body{
-  background:var(--bg);
-  color:var(--ink);
-  font-family:"BIZ UDMincho","BIZ UDPMincho","UD デジタル 教科書体 N","Hiragino Mincho ProN","Yu Mincho","YuMincho","Noto Serif JP",serif;
-  font-size:17px;
-  line-height:1.7;
-  padding-bottom:env(safe-area-inset-bottom,0);
-}
-button,input,select{font-family:inherit;font-size:inherit;color:inherit}
-button{cursor:pointer}
-:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
-#app{max-width:560px;margin:0 auto;padding:0 16px 40px}
+  :root{
+    --paper:#F8F5F0;
+    --paper-raised:#FBF9F5;
+    --paper-deep:#EFE9DD;
+    --ink:#3B3835;
+    --ink-soft:#6f6a65;
+    --ink-faint:#9a948d;
+    --vermilion:#B83B26;
+    --vermilion-soft:#b8634f;
+    --line:#dcd5c8;
+    --focus:#2f5d7a;
+  }
+  [hidden]{display:none !important;}
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  html{scroll-padding-top:env(safe-area-inset-top,0px);}
+  body{
+    background:var(--paper);
+    background-image:radial-gradient(rgba(59,56,53,0.025) 1px, transparent 1px);
+    background-size:3px 3px;
+    color:var(--ink);
+    font-family:"BIZ UDPMincho","BIZ PMincho","Hiragino Mincho ProN","Yu Mincho",serif;
+    min-height:100%;
+    padding-top:env(safe-area-inset-top,0px);
+    padding-bottom:env(safe-area-inset-bottom,0px);
+    -webkit-tap-highlight-color:transparent;
+    line-height:1.6;
+  }
+  #app{max-width:640px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+  a{color:inherit;}
+  button{font-family:inherit;}
+  button:focus-visible, [tabindex]:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible{
+    outline:2px solid var(--focus);
+    outline-offset:2px;
+  }
 
-/* header */
-.hd{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:calc(env(safe-area-inset-top,0) + 16px) 0 8px}
-.hd h1{margin:0;font-size:28px;letter-spacing:.2em;font-weight:700;line-height:1.3}
-.hd p{margin:0;font-size:13px;color:var(--muted)}
-.hd .tools{display:flex;gap:6px;flex-shrink:0}
-.icon-btn{min-width:44px;min-height:44px;padding:0 10px;background:transparent;border:1px solid var(--line);border-radius:8px;font-weight:700}
-.icon-btn:active{background:#EFE9DE}
+  /* ---------- Header ---------- */
+  header.top{
+    position:sticky;top:env(safe-area-inset-top,0px);z-index:20;
+    background:rgba(248,245,240,0.95);
+    backdrop-filter:blur(4px);
+    border-bottom:1px solid var(--line);
+    padding:0.9rem 1.1rem 0.6rem;
+  }
+  .top-row{display:flex;align-items:center;justify-content:space-between;gap:0.6rem;}
+  .brand{display:flex;flex-direction:column;min-width:0;}
+  .brand h1{font-size:1.5rem;font-weight:600;margin:0;letter-spacing:0.06em;}
+  .brand p{margin:0.15rem 0 0;font-size:0.68rem;color:var(--ink-soft);letter-spacing:0.03em;}
+  .icon-btn{
+    background:none;border:none;color:var(--ink-soft);cursor:pointer;
+    min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;
+    border-radius:50%;font-size:1.05rem;transition:background 0.15s ease, color 0.15s ease;
+  }
+  .icon-btn:hover, .icon-btn:active{background:var(--paper-deep);color:var(--ink);}
+  .header-actions{display:flex;align-items:center;gap:0.1rem;flex:0 0 auto;}
 
-/* year bar */
-.yearbar{display:flex;align-items:center;justify-content:center;gap:6px;margin:8px 0}
-.yearbar .y{min-width:120px;text-align:center;font-weight:700;font-size:20px}
-.yearbar .y small{display:block;font-size:12px;font-weight:400;color:var(--muted);line-height:1.2}
-.nav-btn{min-width:44px;min-height:44px;background:var(--card);border:1px solid var(--line);border-radius:8px;font-size:18px}
-.nav-btn:disabled{opacity:.35;cursor:default}
-.nav-btn:active:not(:disabled){background:#EFE9DE}
-.now-btn{min-height:44px;padding:0 12px;background:transparent;border:1px solid var(--line);border-radius:8px;font-size:14px}
+  .year-row{display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-top:0.5rem;}
+  .year-row button{
+    background:none;border:1px solid var(--line);color:var(--ink-soft);
+    min-width:44px;min-height:44px;border-radius:50%;cursor:pointer;font-size:1rem;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .year-row button:disabled{opacity:0.3;cursor:default;}
+  .year-row button:not(:disabled):hover{border-color:var(--vermilion-soft);color:var(--vermilion);}
+  .year-label{font-size:1rem;letter-spacing:0.08em;min-width:6em;text-align:center;}
+  .year-note{text-align:center;font-size:0.68rem;color:var(--vermilion);margin-top:0.2rem;letter-spacing:0.02em;}
 
-/* tabs */
-.tabs{display:flex;gap:4px;margin:8px 0 12px;border-bottom:2px solid var(--ink)}
-.tab{flex:1;min-height:48px;padding:4px 2px;background:transparent;border:0;border-bottom:4px solid transparent;margin-bottom:-2px;font-weight:700;line-height:1.25}
-.tab small{display:block;font-size:11px;font-weight:400;color:var(--muted)}
-.tab[aria-selected="true"]{border-bottom-color:var(--shu);background:#F0EADF}
-.tab[aria-selected="true"]::before{content:"◆";color:var(--shu);font-size:9px;display:block;line-height:1}
+  /* ---------- Tabs ---------- */
+  nav.tabs{
+    display:flex;overflow-x:auto;gap:0.2rem;padding:0.55rem 0.8rem 0;
+    background:var(--paper);border-bottom:1px solid var(--line);
+    scrollbar-width:none;
+  }
+  nav.tabs::-webkit-scrollbar{display:none;}
+  nav.tabs button{
+    flex:0 0 auto;background:none;border:none;color:var(--ink-soft);
+    font-family:inherit;font-size:0.92rem;letter-spacing:0.12em;
+    padding:0.55rem 0.95rem 0.65rem;cursor:pointer;position:relative;min-height:44px;
+  }
+  nav.tabs button.active{color:var(--ink);font-weight:600;}
+  nav.tabs button.active::after{
+    content:"";position:absolute;left:0.9rem;right:0.9rem;bottom:-1px;height:2px;background:var(--vermilion);
+  }
+  nav.tabs button .count{font-size:0.64rem;color:var(--ink-faint);margin-left:0.15rem;font-weight:400;}
+  .season-note{font-size:0.7rem;color:var(--ink-soft);padding:0.6rem 0.2rem 0.2rem;letter-spacing:0.03em;}
 
-/* cards */
-.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.card{display:flex;align-items:stretch;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:6px}
-.stamp{flex:0 0 56px;width:56px;min-height:56px;border-radius:50%;align-self:center;display:flex;align-items:center;justify-content:center;
-  background:transparent;border:2px dashed var(--muted);color:var(--muted);font-size:14px;font-weight:700;padding:0}
-.stamp.on{background:var(--shu);border:2px solid var(--shu);color:#FFF;font-size:22px;box-shadow:inset 0 0 0 3px var(--card),inset 0 0 0 4px var(--shu)}
-.stamp.restore{border:2px solid var(--ink);color:var(--ink);border-radius:10px;font-size:14px}
-.stamp.pop{animation:pop .28s ease-out}
-@keyframes pop{0%{transform:scale(1.5);opacity:.2}100%{transform:scale(1);opacity:1}}
-.body{flex:1;min-height:56px;text-align:left;background:transparent;border:0;padding:4px 6px;border-radius:8px}
-.body:active{background:#F0EADF}
-.body .nm{display:block;font-size:17px;font-weight:600;line-height:1.5}
-.body .mt{display:block;font-size:13px;color:var(--muted);line-height:1.5}
-.body .mt b{color:var(--ink);font-weight:700}
-.empty{padding:28px 8px;text-align:center;color:var(--muted)}
-.add-btn{display:block;width:100%;min-height:48px;margin-top:14px;background:transparent;border:1px dashed var(--muted);border-radius:10px;color:var(--ink)}
-.foot{margin-top:28px;font-size:12px;color:var(--muted);text-align:center}
+  /* ---------- List ---------- */
+  main{flex:1;padding:0.4rem 0.9rem 2rem;}
+  .empty-state{text-align:center;color:var(--ink-soft);font-size:0.85rem;padding:3.5rem 1rem;line-height:2;}
+  ul.item-list{list-style:none;margin:0;padding:0;}
+  li.item-row{
+    border-bottom:1px solid var(--line);padding:0.7rem 0.1rem;
+    display:flex;align-items:center;gap:0.7rem;
+  }
+  li.item-row:first-child{border-top:1px solid var(--line);}
+  .item-main{
+    flex:1;min-width:0;background:none;border:none;text-align:left;cursor:pointer;
+    padding:0.35rem 0.2rem;font-family:inherit;color:inherit;min-height:44px;
+    display:flex;flex-direction:column;justify-content:center;gap:0.25rem;border-radius:3px;
+  }
+  .item-main:active{background:var(--paper-deep);}
+  .item-main[disabled]{cursor:default;}
+  .item-main[disabled]:active{background:none;}
+  .item-name{font-size:0.95rem;letter-spacing:0.02em;line-height:1.5;word-break:break-all;}
+  .item-sub{font-size:0.72rem;color:var(--ink-soft);letter-spacing:0.02em;}
 
-/* buttons */
-.btn{display:block;width:100%;min-height:48px;margin:8px 0 0;padding:6px 14px;background:var(--card);border:1px solid var(--ink);border-radius:10px;font-weight:600}
-.btn.primary{background:var(--shu);border-color:var(--shu);color:#FFF}
-.btn.danger{border-color:var(--shu);color:var(--shu)}
-.btn.quiet{width:auto;display:inline-block;min-height:44px;margin:4px 6px 0 0;border:1px solid var(--line);font-weight:400;font-size:15px}
-.btn:active{filter:brightness(.92)}
-.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
-.row{display:flex;gap:8px}
-.row .btn{margin-top:8px}
+  .stamp{
+    width:56px;height:56px;flex:0 0 auto;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;flex-direction:column;
+    border:1.4px dashed var(--ink-faint);
+    font-size:0.72rem;color:var(--ink-faint);letter-spacing:0.04em;line-height:1.25;
+    background:var(--paper-raised);cursor:pointer;
+  }
+  .stamp.on{
+    border:1.6px solid var(--vermilion);color:var(--vermilion);background:#fbf1ee;
+    box-shadow:inset 0 0 0 2px rgba(184,59,38,0.12);
+  }
+  .stamp.static{cursor:default;}
+  .stamp .stamp-date{font-size:0.68rem;font-weight:600;}
+  .stamp .stamp-mark{font-size:0.95rem;}
 
-/* modal */
-.ov{position:fixed;inset:0;background:rgba(59,56,53,.55);display:flex;align-items:flex-end;justify-content:center;z-index:50}
-.box{background:var(--bg);width:100%;max-width:560px;max-height:90vh;overflow:auto;border-radius:16px 16px 0 0;padding:14px 18px calc(env(safe-area-inset-bottom,0) + 20px)}
-@media(min-width:600px){.ov{align-items:center}.box{border-radius:16px}}
-.box .mh{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
-.box .mh h2{margin:0;font-size:20px;line-height:1.4}
-.box h3{margin:18px 0 4px;font-size:15px;border-left:4px solid var(--shu);padding-left:8px}
-.box p{margin:6px 0}
-.box .sub{font-size:13px;color:var(--muted)}
-.box .status{font-weight:700}
-.box ul.hist{margin:4px 0;padding:0;list-style:none;border-top:1px solid var(--line)}
-.box ul.hist li{padding:8px 4px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px}
-.box label{display:block;font-size:14px;margin-top:10px}
-.box input[type=date],.box input[type=text],.box input[type=password],.box select{width:100%;min-height:48px;padding:6px 10px;background:var(--card);border:1px solid var(--ink);border-radius:8px}
-.box .guide p{font-size:15px}
+  .row-side{display:flex;flex-direction:column;align-items:flex-end;gap:0.1rem;flex:0 0 auto;}
+  .ghost-btn{
+    background:none;border:none;color:var(--ink-soft);font-family:inherit;
+    font-size:0.7rem;letter-spacing:0.04em;cursor:pointer;
+    padding:0.3rem 0.3rem;min-height:44px;min-width:44px;
+    text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;
+  }
+  .ghost-btn:hover{color:var(--vermilion);}
 
-/* lock */
-.lock{position:fixed;inset:0;background:var(--bg);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:20px}
-.lock h2{margin:0 0 4px;letter-spacing:.2em}
-.lock .dots{display:flex;gap:16px;margin:18px 0 6px;font-size:28px;color:var(--shu);min-height:44px;align-items:center}
-.lock .msg{min-height:26px;color:var(--shu);font-size:15px;margin:0 0 10px;text-align:center}
-.pad{display:grid;grid-template-columns:repeat(3,72px);gap:12px}
-.pad button{width:72px;height:64px;background:var(--card);border:1px solid var(--ink);border-radius:12px;font-size:24px;font-weight:700}
-.pad button:active{background:#EFE9DE}
-.pad .ph{visibility:hidden}
+  .reorder-controls{display:flex;gap:0.15rem;}
+  .reorder-controls button{
+    width:44px;height:44px;border:1px solid var(--line);background:var(--paper-raised);
+    border-radius:4px;color:var(--ink-soft);cursor:pointer;font-size:0.9rem;
+  }
+  .reorder-controls button:disabled{opacity:0.25;cursor:default;}
 
-/* toast */
-#toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom,0) + 24px);transform:translateX(-50%);background:var(--ink);color:var(--bg);
-  padding:10px 18px;border-radius:24px;font-size:15px;z-index:200;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
-#toast.show{opacity:1}
+  .add-item-btn{
+    width:100%;margin-top:1rem;padding:0.9rem;background:none;
+    border:1px dashed var(--ink-faint);border-radius:4px;color:var(--ink-soft);
+    font-family:inherit;font-size:0.85rem;cursor:pointer;letter-spacing:0.05em;min-height:44px;
+  }
+  .add-item-btn:hover{border-color:var(--vermilion-soft);color:var(--vermilion);}
 
-@media (prefers-reduced-motion:reduce){
-  .stamp.pop{animation:none}
-  #toast{transition:none}
-}
+  .mode-banner{
+    display:flex;align-items:center;justify-content:space-between;gap:0.6rem;
+    background:var(--paper-deep);border-radius:4px;padding:0.4rem 0.9rem;
+    font-size:0.75rem;color:var(--ink-soft);margin:0.4rem 0;
+  }
+  .mode-banner button{
+    background:none;border:1px solid var(--ink-faint);border-radius:3px;
+    padding:0.3rem 0.9rem;font-family:inherit;font-size:0.78rem;color:var(--ink);cursor:pointer;min-height:44px;
+  }
+
+  /* ---------- Modal / Overlay ---------- */
+  .overlay{
+    position:fixed;inset:0;background:rgba(59,56,53,0.45);
+    display:flex;align-items:flex-end;justify-content:center;z-index:100;padding:0;
+  }
+  .overlay.center{align-items:center;padding:1.2rem;}
+  .overlay.top-layer{z-index:150;}
+  .sheet{
+    background:var(--paper);width:100%;max-width:640px;max-height:88vh;overflow-y:auto;
+    border-radius:14px 14px 0 0;padding:1.3rem 1.3rem calc(1.6rem + env(safe-area-inset-bottom,0px));
+    box-shadow:0 -6px 30px rgba(0,0,0,0.15);
+  }
+  .overlay.center .sheet{border-radius:8px;max-height:80vh;}
+  .sheet h2{margin:0 0 1rem;font-size:1.05rem;letter-spacing:0.05em;padding-right:2.6rem;}
+  .sheet-close{position:absolute;top:0.5rem;right:0.5rem;}
+  .sheet-wrap{position:relative;width:100%;max-width:640px;}
+
+  .field{margin-bottom:1.1rem;}
+  .field > label{display:block;font-size:0.78rem;color:var(--ink-soft);margin-bottom:0.4rem;}
+  .field select, .field input[type=text], .field textarea{
+    width:100%;font-family:inherit;font-size:0.95rem;padding:0.6rem 0.7rem;
+    border:1px solid var(--ink-faint);border-radius:4px;background:var(--paper-raised);color:var(--ink);
+    min-height:44px;
+  }
+  .field textarea{font-size:0.72rem;min-height:110px;resize:vertical;font-family:monospace;}
+  .field-row{display:flex;align-items:center;justify-content:space-between;gap:0.8rem;padding:0.7rem 0;border-bottom:1px solid var(--line);}
+  .field-row:last-child{border-bottom:none;}
+  .field-row .lbl{font-size:0.88rem;}
+  .field-row .sub{font-size:0.7rem;color:var(--ink-soft);margin-top:0.15rem;}
+
+  .switch{position:relative;width:52px;height:44px;flex:0 0 auto;display:block;}
+  .switch input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer;z-index:2;}
+  .switch .track{position:absolute;left:3px;right:3px;top:9px;height:26px;background:var(--ink-faint);border-radius:13px;transition:background 0.15s ease;}
+  .switch .knob{
+    position:absolute;top:11px;left:5px;width:22px;height:22px;border-radius:50%;
+    background:var(--paper-raised);box-shadow:0 1px 3px rgba(0,0,0,0.25);transition:left 0.15s ease;
+  }
+  .switch input:checked + .track{background:var(--vermilion);}
+  .switch input:checked + .track + .knob{left:25px;}
+  .switch input:focus-visible + .track{outline:2px solid var(--focus);outline-offset:2px;}
+
+  .radio-group{display:flex;flex-direction:column;gap:0.2rem;}
+  .radio-opt{display:flex;align-items:center;gap:0.6rem;padding:0.55rem 0.2rem;cursor:pointer;min-height:44px;font-size:0.9rem;color:var(--ink);}
+  .radio-opt input{width:20px;height:20px;accent-color:var(--vermilion);}
+  .radio-opt .ex{color:var(--ink-soft);font-size:0.76rem;}
+
+  .btn{
+    font-family:inherit;font-size:0.86rem;padding:0.65rem 1.1rem;border-radius:4px;cursor:pointer;
+    min-height:44px;min-width:44px;letter-spacing:0.03em;
+  }
+  .btn.primary{background:var(--vermilion);border:1px solid var(--vermilion);color:#fff;}
+  .btn.primary:hover{background:#9e3220;}
+  .btn.plain{background:none;border:1px solid var(--ink-faint);color:var(--ink);}
+  .btn.plain:hover{border-color:var(--ink);}
+  .btn.danger{background:none;border:1px solid var(--vermilion);color:var(--vermilion);}
+  .btn-row{display:flex;gap:0.6rem;margin-top:0.4rem;flex-wrap:wrap;}
+  .btn-row .btn{flex:1;}
+
+  .help-body p{font-size:0.85rem;margin:0 0 0.9rem;}
+  .help-body h3{font-size:0.88rem;margin:1.1rem 0 0.4rem;color:var(--vermilion);letter-spacing:0.04em;}
+
+  .timeline{list-style:none;margin:0;padding:0;}
+  .timeline li{display:flex;justify-content:space-between;gap:1rem;padding:0.6rem 0.1rem;border-bottom:1px solid var(--line);font-size:0.88rem;}
+  .timeline li .yr{color:var(--ink-soft);}
+  .timeline li .skip{color:var(--ink-soft);}
+
+  .backup-section{margin-bottom:1.4rem;}
+  .backup-section h3{font-size:0.9rem;margin:0 0 0.6rem;letter-spacing:0.04em;}
+  .status-msg{font-size:0.78rem;min-height:1.3em;margin:0.2rem 0 0.6rem;color:var(--ink-soft);}
+  .status-msg.err{color:var(--vermilion);}
+
+  /* ---------- Lock screen ---------- */
+  #lockScreen{
+    position:fixed;inset:0;background:var(--paper);z-index:200;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.4rem;padding:2rem;
+  }
+  #lockScreen .title{font-size:1.05rem;letter-spacing:0.08em;}
+  .pin-dots{display:flex;gap:0.9rem;}
+  .pin-dots span{width:14px;height:14px;border-radius:50%;border:1.6px solid var(--ink-soft);}
+  .pin-dots span.filled{background:var(--vermilion);border-color:var(--vermilion);}
+  .pin-dots.shake{animation:shake 0.35s;}
+  @keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+  .keypad{display:grid;grid-template-columns:repeat(3,64px);gap:0.9rem;}
+  .keypad button{
+    width:64px;height:64px;border-radius:50%;border:1px solid var(--ink-faint);background:var(--paper-raised);
+    font-family:inherit;font-size:1.15rem;color:var(--ink);cursor:pointer;
+  }
+  .keypad button:active{background:var(--paper-deep);}
+  .keypad button.empty{visibility:hidden;}
+  .lock-err{font-size:0.78rem;color:var(--vermilion);min-height:1.3em;}
+
+  @media (prefers-reduced-motion: reduce){
+    .pin-dots.shake{animation:none;}
+    *{transition:none !important;}
+  }
 </style>
 </head>
 <body>
-<div id="app"></div>
-<div id="toast" role="status" aria-live="polite"></div>
+<div id="app">
+
+  <div id="lockScreen" hidden>
+    <div class="title">パスコードを入力してください</div>
+    <div class="pin-dots" id="pinDots"><span></span><span></span><span></span><span></span></div>
+    <div class="lock-err" id="lockErr"></div>
+    <div class="keypad" id="keypad">
+      <button data-k="1">1</button><button data-k="2">2</button><button data-k="3">3</button>
+      <button data-k="4">4</button><button data-k="5">5</button><button data-k="6">6</button>
+      <button data-k="7">7</button><button data-k="8">8</button><button data-k="9">9</button>
+      <button class="empty" tabindex="-1" aria-hidden="true"></button><button data-k="0">0</button><button data-k="back" aria-label="1文字消す">⌫</button>
+    </div>
+  </div>
+
+  <header class="top">
+    <div class="top-row">
+      <div class="brand">
+        <h1>そむごよみ</h1>
+        <p>私だけの「今年初めて」を記録するアプリ</p>
+      </div>
+      <div class="header-actions">
+        <button class="icon-btn" id="btnReorder" title="並べ替え" aria-label="並べ替えモード">⇅</button>
+        <button class="icon-btn" id="btnHelp" title="使い方" aria-label="使い方">?</button>
+        <button class="icon-btn" id="btnSettings" title="設定" aria-label="設定">⚙</button>
+      </div>
+    </div>
+    <div class="year-row">
+      <button id="yearPrev" aria-label="前の年へ">‹</button>
+      <span class="year-label" id="yearLabel">2026年</span>
+      <button id="yearNext" aria-label="次の年へ">›</button>
+    </div>
+    <div class="year-note" id="yearNote" hidden>過去の年を振り返っています（新しい記録はできません）</div>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+
+  <main id="main">
+    <div class="season-note" id="seasonNote"></div>
+    <div id="reorderBanner" class="mode-banner" hidden>
+      <span>並べ替えモード：矢印で順番を入れ替えます</span>
+      <button id="reorderDone">完了</button>
+    </div>
+    <ul class="item-list" id="itemList"></ul>
+    <button class="add-item-btn" id="addItemBtn">＋ 新しい項目を加える</button>
+  </main>
+</div>
+
+<!-- 詳細ダイアログ -->
+<div class="overlay center" id="detailOverlay" hidden>
+  <div class="sheet-wrap">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="detailClose" aria-label="閉じる">✕</button>
+      <h2 id="detailTitle"></h2>
+      <div id="detailBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 項目追加ダイアログ -->
+<div class="overlay" id="addOverlay" hidden>
+  <div class="sheet-wrap">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="addClose" aria-label="閉じる">✕</button>
+      <h2>新しい項目</h2>
+      <div class="field">
+        <label for="addSeason">季節</label>
+        <select id="addSeason">
+          <option value="spring">春</option>
+          <option value="summer">夏</option>
+          <option value="autumn">秋</option>
+          <option value="winter">冬</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="addName">名前</label>
+        <input type="text" id="addName" maxlength="40" placeholder="例：夕立の匂いに気づく">
+      </div>
+      <div class="btn-row">
+        <button class="btn plain" id="addCancel">やめる</button>
+        <button class="btn primary" id="addSubmit">加える</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 項目編集ダイアログ -->
+<div class="overlay" id="editOverlay" hidden>
+  <div class="sheet-wrap">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="editClose" aria-label="閉じる">✕</button>
+      <h2>名前を変える</h2>
+      <div class="field">
+        <label for="editName">名前</label>
+        <input type="text" id="editName" maxlength="40">
+      </div>
+      <div class="btn-row">
+        <button class="btn plain" id="editCancel">やめる</button>
+        <button class="btn primary" id="editSubmit">変える</button>
+      </div>
+      <div class="btn-row" id="editDeleteRow" hidden>
+        <button class="btn danger" id="editDelete">この項目を削除する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 設定ダイアログ -->
+<div class="overlay" id="settingsOverlay" hidden>
+  <div class="sheet-wrap">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="settingsClose" aria-label="閉じる">✕</button>
+      <h2>設定</h2>
+
+      <div class="field">
+        <label>日付の表記</label>
+        <div class="radio-group">
+          <label class="radio-opt">
+            <input type="radio" name="dateStyle" value="standard">
+            <span>標準数字 <span class="ex">（例：3/15）</span></span>
+          </label>
+          <label class="radio-opt">
+            <input type="radio" name="dateStyle" value="wa">
+            <span>和数字 <span class="ex">（例：三月十五日）</span></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div>
+          <div class="lbl">パスコードロック</div>
+          <div class="sub">起動時にパスコードを求めます（初期はオフ）</div>
+        </div>
+        <label class="switch" aria-label="パスコードロックのオン・オフ">
+          <input type="checkbox" id="passcodeToggle">
+          <span class="track"></span>
+          <span class="knob"></span>
+        </label>
+      </div>
+      <div class="field-row" id="passcodeChangeRow" hidden>
+        <div class="lbl">パスコードを変更する</div>
+        <button class="btn plain" id="passcodeChangeBtn">変更</button>
+      </div>
+
+      <div class="field-row">
+        <div>
+          <div class="lbl">記録データのバックアップ</div>
+          <div class="sub">JSONで書き出し・読み込み（復元）ができます</div>
+        </div>
+        <button class="btn plain" id="backupOpenBtn">開く</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- バックアップダイアログ -->
+<div class="overlay top-layer" id="backupOverlay" hidden>
+  <div class="sheet-wrap">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="backupClose" aria-label="閉じる">✕</button>
+      <h2>記録データのバックアップ</h2>
+
+      <div class="backup-section">
+        <h3>書き出し</h3>
+        <div class="btn-row">
+          <button class="btn plain" id="exportFileBtn">ファイルに保存</button>
+          <button class="btn plain" id="exportCopyBtn">コピー</button>
+        </div>
+        <div class="field" style="margin-top:0.7rem;">
+          <label for="exportText">書き出した内容（保存できない場合は、ここからコピーしてメモ等に貼り付けてください）</label>
+          <textarea id="exportText" readonly></textarea>
+        </div>
+      </div>
+
+      <div class="backup-section">
+        <h3>読み込み（復元）</h3>
+        <div class="field">
+          <label for="importFile">バックアップファイル（.json）を選ぶ</label>
+          <input type="file" id="importFile" accept=".json,application/json" style="font-size:0.85rem;min-height:44px;">
+        </div>
+        <div class="field">
+          <label for="importText">または、書き出した内容をここに貼り付ける</label>
+          <textarea id="importText" placeholder="{ &quot;app&quot;: &quot;somugoyomi&quot;, ... }"></textarea>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="importRunBtn">この内容で復元する</button>
+        </div>
+      </div>
+
+      <div class="status-msg" id="backupStatus" role="status"></div>
+      <p style="font-size:0.72rem;color:var(--ink-soft);margin:0;">※ パスコードはバックアップに含まれません。復元すると、いまの記録は置き換わります。</p>
+    </div>
+  </div>
+</div>
+
+<!-- パスコード設定ダイアログ -->
+<div class="overlay center top-layer" id="pinSetupOverlay" hidden>
+  <div class="sheet-wrap" style="max-width:420px;">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="pinSetupClose" aria-label="閉じる">✕</button>
+      <h2 id="pinSetupTitle">パスコードを設定</h2>
+      <p style="font-size:0.8rem;color:var(--ink-soft);margin-top:-0.4rem;">半角数字4桁を入力してください</p>
+      <div class="field">
+        <label for="pinInput1" id="pinSetupLabel1">新しいパスコード</label>
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" id="pinInput1" style="width:100%;font-size:1.3rem;letter-spacing:0.5em;text-align:center;padding:0.6rem;border:1px solid var(--ink-faint);border-radius:4px;min-height:48px;background:var(--paper-raised);color:var(--ink);">
+      </div>
+      <div class="field" id="pinInput2Wrap">
+        <label for="pinInput2" id="pinSetupLabel2">もう一度入力してください</label>
+        <input type="text" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" id="pinInput2" style="width:100%;font-size:1.3rem;letter-spacing:0.5em;text-align:center;padding:0.6rem;border:1px solid var(--ink-faint);border-radius:4px;min-height:48px;background:var(--paper-raised);color:var(--ink);">
+      </div>
+      <div class="lock-err" id="pinSetupErr" style="text-align:center;margin-bottom:0.6rem;"></div>
+      <div class="btn-row">
+        <button class="btn plain" id="pinSetupCancel">やめる</button>
+        <button class="btn primary" id="pinSetupOk">決定</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 確認ダイアログ -->
+<div class="overlay center top-layer" id="confirmOverlay" hidden>
+  <div class="sheet-wrap" style="max-width:420px;">
+    <div class="sheet">
+      <p id="confirmMsg" style="font-size:0.92rem;margin:0 0 1.1rem;line-height:1.8;"></p>
+      <div class="btn-row">
+        <button class="btn plain" id="confirmNo">やめる</button>
+        <button class="btn primary" id="confirmYes">はい</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 使い方オーバーレイ -->
+<div class="overlay center" id="helpOverlay" hidden>
+  <div class="sheet-wrap">
+    <div class="sheet">
+      <button class="icon-btn sheet-close" id="helpClose" aria-label="閉じる">✕</button>
+      <h2>そむごよみ の使い方</h2>
+      <div class="help-body">
+        <p>公式の開花日や暦の行事ではなく、あなた自身が日々の暮らしのなかで感じた「季節のはじまり」を、そっと記録するための場所です。</p>
+        <h3>記録する（今年初めて）</h3>
+        <p>項目や右の枠をタップすると、その日の日付が朱印のように静かに刻まれます。もう一度タップすると、記録の取り消しを確認します。起動時は今の季節のタブが開きますが、ほかの季節のタブも自由に開いて記録できます。</p>
+        <h3>「今年はスキップ」とは</h3>
+        <p>今年は出会わなかった項目や、ご自身の暮らしに合わない項目は「今年はスキップ」を選んでください。「スキップ」タブにしまわれ、記録を急かされることはありません。スキップはその年だけの扱いなので、来年は自然に元の季節に戻ります。「戻す」でいつでも今年の分を取り消せます。</p>
+        <h3>年を振り返る</h3>
+        <p>ヘッダーの年を切り替えると、その年の記録の様子を振り返れます。各項目には「去年」の日付が添えられ、「詳細」を開くと過去すべての年の記録を確認できます。過去の年を見ている間は、新しい記録はできません。</p>
+        <h3>パスコードの設定</h3>
+        <p>設定画面の「パスコードロック」をオンにし、4桁の数字を2回入力すると、次回の起動からロックがかかります。オフにするときや変更するときは、現在のパスコードの入力が必要です。</p>
+        <h3>バックアップ</h3>
+        <p>設定画面の「記録データのバックアップ」から、記録をJSONで書き出して保存できます。機種変更やブラウザのデータ消去に備えて、ときどき書き出しておくと安心です。書き出した内容は、同じ画面から読み込んで復元できます。</p>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   'use strict';
 
-  /* ---------- 定数・プリセット ---------- */
-  var SEASONS = [
-    { k: 'spring', n: '春', r: '3〜5月', p: 'sp' },
-    { k: 'summer', n: '夏', r: '6〜8月', p: 'su' },
-    { k: 'autumn', n: '秋', r: '9〜11月', p: 'au' },
-    { k: 'winter', n: '冬', r: '12〜2月', p: 'wi' }
-  ];
-  var SK = {};
-  SEASONS.forEach(function (s) { SK[s.k] = s; });
+  /* ================= データ定義 ================= */
+  var SEASON_LABELS = { spring:'春', summer:'夏', autumn:'秋', winter:'冬' };
+  var SEASON_RANGES = { spring:'3〜5月', summer:'6〜8月', autumn:'9〜11月', winter:'12〜2月' };
+  var SEASON_ORDER = ['spring','summer','autumn','winter'];
 
-  var PRESETS = {
+  var PRESET_NAMES = {
     spring: [
-      '沈丁花の香りに気づく',
-      '暖房をつけない日がある',
-      '朝起きるのが少し楽になる',
-      '春の強い風（春一番など）に吹かれる',
-      '卒業式や入学式に向かう姿を見かける',
-      '街の植木や花壇にチューリップや菜の花を見つける',
-      '街路樹に新芽を見つける',
-      '上着を着ようか迷う',
-      '街の桜の木に咲く一輪の花に気づく',
-      '春限定のスイーツを買う',
-      '日差しの暖かさを感じる',
-      '新玉ねぎを味わう',
-      '春キャベツを味わう',
-      '春の味覚を味わう（鰆・筍など）',
-      'いつもの桜が満開になる',
-      '新社会人や新学期の人たちを見かける',
-      'コンビニのおでんの販売が終わる',
-      '桜吹雪のなかを歩く',
-      '冬用の上着をクリーニングに出す',
-      '上着を着ないで出かける',
-      '明るい時間が長く感じる',
-      'ツバメを見かける',
-      '夜風の温かさを感じる',
-      '冷たい飲み物が飲みたくなる',
-      '自販機の表示が「つめた〜い」に変わる'
+      "沈丁花の香りに気づく",
+      "暖房をつけない日がある",
+      "朝起きるのが少し楽になる",
+      "春の強い風（春一番など）に吹かれる",
+      "卒業式や入学式に向かう姿を見かける",
+      "街の植木や花壇にチューリップや菜の花を見つける",
+      "街路樹に新芽を見つける",
+      "上着を着ようか迷う",
+      "街の桜の木に咲く一輪の花に気づく",
+      "春限定のスイーツを買う",
+      "日差しの暖かさを感じる",
+      "新玉ねぎを味わう",
+      "春キャベツを味わう",
+      "春の味覚を味わう（鰆・筍など）",
+      "いつもの桜が満開になる",
+      "新社会人や新学期の人たちを見かける",
+      "コンビニのおでんの販売が終わる",
+      "桜吹雪のなかを歩く",
+      "冬用の上着をクリーニングに出す",
+      "上着を着ないで出かける",
+      "明るい時間が長く感じる",
+      "ツバメを見かける",
+      "夜風の温かさを感じる",
+      "冷たい飲み物が飲みたくなる",
+      "自販機の表示が「つめた〜い」に変わる"
     ],
     summer: [
-      '日陰を選んで歩く',
-      '麦茶を作り始める',
-      '扇風機を押し入れから出す',
-      'シーツを冷感素材に変える',
-      '汗拭きシートを使う',
-      '梅雨入り／梅雨明けのニュースを聞く',
-      '紫陽花（あじさい）が咲いているのを見かける',
-      '冷房をつけ始める',
-      '「冷やし中華はじめました」を見かける',
-      '夏らしい食材を味わう（すいか、とうもろこし、そうめん、冷やし中華など）',
-      'アイスキャンディーや氷菓を食べる',
-      '日傘をさして歩く',
-      '車に乗った瞬間、車内の熱気に驚く',
-      '初めての熱帯夜を過ごす',
-      '蚊取り線香の香りに気づく',
-      '虫刺されの薬を塗る',
-      '風鈴の音を聞く',
-      'セミの声を聞く',
-      '入道雲（積乱雲）を見る',
-      '夕立にあう',
-      '浴衣姿の人を見かける／浴衣を着る',
-      '花火の音を聞く／花火を見る',
-      '日焼けのあと（水着跡・ソックス跡など）に気づく',
-      '夏休み期間中の電車が空いているのに気づく',
-      '夏の終わりの匂いや寂しさを感じる'
+      "日陰を選んで歩く",
+      "麦茶を作り始める",
+      "扇風機を押し入れから出す",
+      "シーツを冷感素材に変える",
+      "汗拭きシートを使う",
+      "梅雨入り／梅雨明けのニュースを聞く",
+      "紫陽花（あじさい）が咲いているのを見かける",
+      "冷房をつけ始める",
+      "「冷やし中華はじめました」を見かける",
+      "夏らしい食材を味わう（すいか、とうもろこし、そうめん、冷やし中華など）",
+      "アイスキャンディーや氷菓を食べる",
+      "日傘をさして歩く",
+      "車に乗った瞬間、車内の熱気に驚く",
+      "初めての熱帯夜を過ごす",
+      "蚊取り線香の香りに気づく",
+      "虫刺されの薬を塗る",
+      "風鈴の音を聞く",
+      "セミの声を聞く",
+      "入道雲（積乱雲）を見る",
+      "夕立にあう",
+      "浴衣姿の人を見かける／浴衣を着る",
+      "花火の音を聞く／花火を見る",
+      "日焼けのあと（水着跡・ソックス跡など）に気づく",
+      "夏休み期間中の電車が空いているのに気づく",
+      "夏の終わりの匂いや寂しさを感じる"
     ],
     autumn: [
-      '朝晩と日中の寒暖差に服装を迷う',
-      '冷房をつけずに過ごせる日がある',
-      '夜風がひんやりと感じる',
-      '羽織もの（カーディガンやパーカーなど）を用意する',
-      'うろこ雲やいわし雲を見る',
-      '秋の虫の声を聞く',
-      '月を見上げてきれいだと感じる（中秋の名月など）',
-      '月見バーガー（類）を見かける／食べる',
-      '金木犀の香りに気づく',
-      '秋らしい食材を味わう（さんま、栗、さつまいも、新米など）',
-      '長袖を着て出かける',
-      '靴下やタイツなど足元を秋仕様に変える',
-      '日が暮れるのが早くなったと感じる',
-      '温かい飲み物を選ぶようになる',
-      '湯船にゆっくり浸かりたくなる',
-      'ハロウィン関連の装飾や商品を見かける',
-      '読書の秋・芸術の秋を感じる（本を手に取る・美術館へ行くなど）',
-      '肌や唇の乾燥を感じ始める',
-      '加湿器を出し始める',
-      '街路樹の葉が色づき始める',
-      '銀杏（いちょう）並木が黄色く色づくのを見る',
-      'ボジョレー・ヌーヴォーや秋限定のビール・お酒を見かける',
-      '毛布や掛け布団を出す',
-      '日が落ちるのが早く、帰宅時にはもう真っ暗になっている',
-      '落ち葉を踏んで歩く'
+      "朝晩と日中の寒暖差に服装を迷う",
+      "冷房をつけずに過ごせる日がある",
+      "夜風がひんやりと感じる",
+      "羽織もの（カーディガンやパーカーなど）を用意する",
+      "うろこ雲やいわし雲を見る",
+      "秋の虫の声を聞く",
+      "月を見上げてきれいだと感じる（中秋の名月など）",
+      "月見バーガー（類）を見かける／食べる",
+      "金木犀の香りに気づく",
+      "秋らしい食材を味わう（さんま、栗、さつまいも、新米など）",
+      "長袖を着て出かける",
+      "靴下やタイツなど足元を秋仕様に変える",
+      "日が暮れるのが早くなったと感じる",
+      "温かい飲み物を選ぶようになる",
+      "湯船にゆっくり浸かりたくなる",
+      "ハロウィン関連の装飾や商品を見かける",
+      "読書の秋・芸術の秋を感じる（本を手に取る・美術館へ行くなど）",
+      "肌や唇の乾燥を感じ始める",
+      "加湿器を出し始める",
+      "街路樹の葉が色づき始める",
+      "銀杏（いちょう）並木が黄色く色づくのを見る",
+      "ボジョレー・ヌーヴォーや秋限定のビール・お酒を見かける",
+      "毛布や掛け布団を出す",
+      "日が落ちるのが早く、帰宅時にはもう真っ暗になっている",
+      "落ち葉を踏んで歩く"
     ],
     winter: [
-      '水道の水が冷たく感じる',
-      '暖房をつけ始める',
-      '自販機の表示が「あったか〜い」に変わる',
-      'コンビニのおでんや中華まんを見かける／買う',
-      '冬用のコートやダウンを着る',
-      '乾燥で静電気が起きる',
-      'イルミネーションを見かける',
-      '息が白くなるのに気づく',
-      'マフラーや手袋をつける',
-      '鍋料理を食べる',
-      'みかんを食べる',
-      '湯たんぽやカイロを使い始める',
-      '冬至にゆず湯に入る／かぼちゃを食べる',
-      'クリスマスソングを耳にする',
-      '年末年始の気配を感じる（年賀状・おせちの予約案内など）',
-      '除夜の鐘を聞く',
-      '初詣に行く',
-      'お雑煮やおせちを食べる',
-      '布団から出るのがつらくなる',
-      '朝、窓ガラスが結露しているのに気づく',
-      '七草粥を食べる',
-      '雪が降るのを見る',
-      '恵方巻を見かける／食べる',
-      '節分の豆を見かける／豆まきをする',
-      'バレンタインの特設コーナーを見かける'
+      "水道の水が冷たく感じる",
+      "暖房をつけ始める",
+      "自販機の表示が「あったか〜い」に変わる",
+      "コンビニのおでんや中華まんを見かける／買う",
+      "冬用のコートやダウンを着る",
+      "乾燥で静電気が起きる",
+      "イルミネーションを見かける",
+      "息が白くなるのに気づく",
+      "マフラーや手袋をつける",
+      "鍋料理を食べる",
+      "みかんを食べる",
+      "湯たんぽやカイロを使い始める",
+      "冬至にゆず湯に入る／かぼちゃを食べる",
+      "クリスマスソングを耳にする",
+      "年末年始の気配を感じる（年賀状・おせちの予約案内など）",
+      "除夜の鐘を聞く",
+      "初詣に行く",
+      "お雑煮やおせちを食べる",
+      "布団から出るのがつらくなる",
+      "朝、窓ガラスが結露しているのに気づく",
+      "七草粥を食べる",
+      "雪が降るのを見る",
+      "恵方巻を見かける／食べる",
+      "節分の豆を見かける／豆まきをする",
+      "バレンタインの特設コーナーを見かける"
     ]
   };
 
-  var KEY = 'somugoyomi_v1';
-  var NOW = new Date();
-  var CUR = NOW.getFullYear();
-  var mem = null;          // localStorage が使えない場合の一時退避
-  var state, view, items = [], byId = {}, lastStamped = null;
-  var modalRoot = null, lastFocus = null, lockKeyHandler = null;
-
-  /* ---------- ユーティリティ ---------- */
-  function $(s) { return document.querySelector(s); }
-  function pad2(n) { return (n < 10 ? '0' : '') + n; }
-  function h(tag, props) {
-    var e = document.createElement(tag);
-    props = props || {};
-    Object.keys(props).forEach(function (k) {
-      var v = props[k];
-      if (v === null || v === undefined || v === false) return;
-      if (k === 'class') e.className = v;
-      else if (k === 'text') e.textContent = v;
-      else if (k.indexOf('on') === 0) e.addEventListener(k.slice(2), v);
-      else e.setAttribute(k, v === true ? '' : v);
+  function buildDefaultItems(){
+    var items = [];
+    SEASON_ORDER.forEach(function(season){
+      PRESET_NAMES[season].forEach(function(name, idx){
+        items.push({ id: season + '-' + (idx + 1), season: season, name: name, custom: false, order: idx });
+      });
     });
-    for (var i = 2; i < arguments.length; i++) {
-      var c = arguments[i];
-      if (c === null || c === undefined || c === false) continue;
-      if (Array.isArray(c)) { c.forEach(function (cc) { if (cc) e.appendChild(typeof cc === 'string' ? document.createTextNode(cc) : cc); }); }
-      else e.appendChild(typeof c === 'string' ? document.createTextNode(c) : c);
+    return items;
+  }
+
+  var STORAGE_KEY = 'somugoyomi-data-v2';
+  var memoryFallback = null; // localStorageが使えない環境での退避先
+
+  function defaultState(){
+    return {
+      items: buildDefaultItems(),
+      records: {}, // itemId -> [{year, month, day}]
+      skips: {},   // itemId -> [year, ...]
+      settings: { dateStyle: 'standard', passcodeEnabled: false, passcode: null }
+    };
+  }
+
+  function normalizeState(p){
+    var base = defaultState();
+    if(!p || typeof p !== 'object') return base;
+    if(Array.isArray(p.items) && p.items.length){ base.items = p.items; }
+    if(p.records && typeof p.records === 'object'){ base.records = p.records; }
+    if(p.skips && typeof p.skips === 'object'){ base.skips = p.skips; }
+    if(p.settings && typeof p.settings === 'object'){
+      base.settings.dateStyle = (p.settings.dateStyle === 'wa') ? 'wa' : 'standard';
+      base.settings.passcodeEnabled = !!p.settings.passcodeEnabled;
+      base.settings.passcode = (typeof p.settings.passcode === 'string') ? p.settings.passcode : null;
     }
-    return e;
+    return base;
   }
-  function seasonOfMonth(m) {
-    if (m >= 3 && m <= 5) return 'spring';
-    if (m >= 6 && m <= 8) return 'summer';
-    if (m >= 9 && m <= 11) return 'autumn';
-    return 'winter';
+
+  function loadState(){
+    try{
+      var raw = window.localStorage.getItem(STORAGE_KEY);
+      if(raw){ return normalizeState(JSON.parse(raw)); }
+    }catch(e){ /* 保存領域が使えない・破損 → 初期状態へ */ }
+    if(memoryFallback) return memoryFallback;
+    return defaultState();
   }
-  function todayStr() {
+
+  var state = loadState();
+
+  function saveState(){
+    try{
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      memoryFallback = null;
+    }catch(e){
+      memoryFallback = state; // 保存できない環境ではメモリ内にのみ保持
+    }
+  }
+
+  /* ================= 補助関数 ================= */
+  var KANJI_DIGIT = ['','一','二','三','四','五','六','七','八','九'];
+  function numberToKanji(n){
+    n = Math.round(n);
+    if(n <= 0) return String(n);
+    if(n < 10) return KANJI_DIGIT[n];
+    if(n === 10) return '十';
+    if(n < 20) return '十' + KANJI_DIGIT[n - 10];
+    if(n === 20) return '二十';
+    if(n < 30) return '二十' + KANJI_DIGIT[n - 20];
+    if(n === 30) return '三十';
+    return '三十' + KANJI_DIGIT[n - 30];
+  }
+
+  function formatDate(year, month, day){
+    try{
+      if(state.settings.dateStyle === 'wa'){
+        return numberToKanji(month) + '月' + numberToKanji(day) + '日';
+      }
+      return month + '/' + day;
+    }catch(e){
+      return month + '/' + day;
+    }
+  }
+
+  function seasonForMonth(m){
+    if(m >= 3 && m <= 5) return 'spring';
+    if(m >= 6 && m <= 8) return 'summer';
+    if(m >= 9 && m <= 11) return 'autumn';
+    return 'winter'; // 12〜2月
+  }
+
+  function todayParts(){
     var d = new Date();
-    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
-  }
-  var KD = '〇一二三四五六七八九';
-  function kn(n) {
-    if (n < 10) return KD.charAt(n);
-    if (n === 10) return '十';
-    if (n < 20) return '十' + KD.charAt(n - 10);
-    var t = Math.floor(n / 10), o = n % 10;
-    return KD.charAt(t) + '十' + (o ? KD.charAt(o) : '');
-  }
-  function fmtDate(d) {
-    var m = parseInt(d.slice(5, 7), 10), dd = parseInt(d.slice(8, 10), 10);
-    return state.set.kanji ? kn(m) + '月' + kn(dd) + '日' : m + '/' + dd;
-  }
-  function yl(y) { return y === CUR ? '今年' : y + '年'; }
-  function prevLabel(y) { return y === CUR ? '昨年' : (y - 1) + '年'; }
-  function defDate(y) {
-    var t = new Date(), m = t.getMonth() + 1, d = t.getDate();
-    var s = y + '-' + pad2(m) + '-' + pad2(d);
-    var chk = new Date(y, m - 1, d);
-    if (chk.getMonth() !== m - 1) s = y + '-' + pad2(m) + '-28';
-    return s;
-  }
-  function vibrate() { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} }
-  var toastTimer = null;
-  function toast(msg) {
-    var t = $('#toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 2200);
+    return { year: d.getFullYear(), month: d.getMonth() + 1, day: d.getDate() };
   }
 
-  /* ---------- 保存・読込 ---------- */
-  function normalize(o, keepPass) {
-    var s = { rec: {}, custom: [], order: {}, set: { pass: keepPass || '', kanji: false } };
-    try {
-      if (o && typeof o === 'object') {
-        if (o.rec && typeof o.rec === 'object') {
-          Object.keys(o.rec).forEach(function (id) {
-            var yrs = o.rec[id];
-            if (!yrs || typeof yrs !== 'object') return;
-            Object.keys(yrs).forEach(function (y) {
-              if (!/^\d{4}$/.test(y)) return;
-              var v = yrs[y];
-              if (!v || typeof v !== 'object') return;
-              var rec = null;
-              if (v.skip === true) rec = { skip: true };
-              else if (typeof v.d === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v.d) && v.d.slice(0, 4) === y) rec = { d: v.d };
-              if (rec) { if (!s.rec[id]) s.rec[id] = {}; s.rec[id][y] = rec; }
-            });
-          });
-        }
-        if (Array.isArray(o.custom)) {
-          o.custom.forEach(function (c) {
-            if (c && typeof c.id === 'string' && typeof c.name === 'string' && SK[c.season] && c.name.trim()) {
-              s.custom.push({ id: c.id.slice(0, 40), name: c.name.slice(0, 60), season: c.season });
-            }
-          });
-        }
-        if (o.order && typeof o.order === 'object') {
-          SEASONS.forEach(function (se) {
-            if (Array.isArray(o.order[se.k])) {
-              s.order[se.k] = o.order[se.k].filter(function (x) { return typeof x === 'string'; });
-            }
-          });
-        }
-        if (o.set && typeof o.set === 'object') {
-          s.set.kanji = o.set.kanji === true;
-          if (keepPass === undefined && typeof o.set.pass === 'string' && /^\d{4}$/.test(o.set.pass)) s.set.pass = o.set.pass;
-        }
-      }
-    } catch (e) {}
-    return s;
+  var REAL_TODAY = todayParts();
+  var referenceYear = REAL_TODAY.year;
+  var currentTab = seasonForMonth(REAL_TODAY.month); // 起動時は現在の月の季節
+  var reorderMode = false;
+
+  function getRecordsFor(itemId){
+    var l = state.records[itemId];
+    return Array.isArray(l) ? l : [];
   }
-  function load() {
-    var raw = null;
-    try { raw = localStorage.getItem(KEY); } catch (e) { raw = null; }
-    if (raw) {
-      try { return normalize(JSON.parse(raw)); } catch (e) {}
-    }
-    return normalize(mem);
+  function getRecordForYear(itemId, year){
+    var list = getRecordsFor(itemId);
+    for(var i = 0; i < list.length; i++){ if(list[i].year === year) return list[i]; }
+    return null;
   }
-  function save() {
-    try {
-      localStorage.setItem(KEY, JSON.stringify(state));
-    } catch (e) {
-      try { mem = JSON.parse(JSON.stringify(state)); } catch (e2) {}
-      toast('この環境では保存できません（画面を閉じると消えます）');
+  function setRecordForYear(itemId, year, month, day){
+    if(!Array.isArray(state.records[itemId])) state.records[itemId] = [];
+    var list = state.records[itemId];
+    for(var i = 0; i < list.length; i++){
+      if(list[i].year === year){ list[i].month = month; list[i].day = day; saveState(); return; }
     }
+    list.push({ year: year, month: month, day: day });
+    saveState();
+  }
+  function removeRecordForYear(itemId, year){
+    if(!Array.isArray(state.records[itemId])) return;
+    state.records[itemId] = state.records[itemId].filter(function(r){ return r.year !== year; });
+    saveState();
   }
 
-  /* ---------- 項目・記録 ---------- */
-  function buildItems() {
-    items = []; byId = {};
-    function add(it) { items.push(it); byId[it.id] = it; }
-    SEASONS.forEach(function (s) {
-      PRESETS[s.k].forEach(function (n, i) { add({ id: s.p + (i + 1), name: n, season: s.k, custom: false }); });
-    });
-    state.custom.forEach(function (c) { add({ id: c.id, name: c.name, season: c.season, custom: true }); });
+  function getSkipYears(itemId){
+    var l = state.skips[itemId];
+    return Array.isArray(l) ? l : [];
   }
-  function orderedIds(season) {
-    var base = items.filter(function (it) { return it.season === season; }).map(function (it) { return it.id; });
-    var ord = state.order[season] || [], seen = {}, out = [];
-    ord.forEach(function (id) { if (base.indexOf(id) >= 0 && !seen[id]) { seen[id] = 1; out.push(id); } });
-    base.forEach(function (id) { if (!seen[id]) out.push(id); });
-    return out;
+  function isSkipped(itemId, year){
+    return getSkipYears(itemId).indexOf(year) >= 0;
   }
-  function getRec(id, y) { return state.rec[id] ? state.rec[id][y] : undefined; }
-  function setRec(id, y, val) {
-    if (!state.rec[id]) state.rec[id] = {};
-    if (val === null) {
-      delete state.rec[id][y];
-      if (!Object.keys(state.rec[id]).length) delete state.rec[id];
-    } else {
-      state.rec[id][y] = val;
-    }
-    save();
-  }
-  function visibleIds(season, y) {
-    return orderedIds(season).filter(function (id) { var r = getRec(id, y); return !(r && r.skip); });
-  }
-  function skippedIds(y) {
-    var out = [];
-    SEASONS.forEach(function (s) {
-      orderedIds(s.k).forEach(function (id) { var r = getRec(id, y); if (r && r.skip) out.push(id); });
-    });
-    return out;
-  }
-  function move(id, dir) {
-    var it = byId[id]; if (!it) return;
-    var ord = orderedIds(it.season), vis = visibleIds(it.season, view.year);
-    var i = vis.indexOf(id), j = i + dir;
-    if (i < 0 || j < 0 || j >= vis.length) return;
-    var a = ord.indexOf(id), b = ord.indexOf(vis[j]);
-    var tmp = ord[a]; ord[a] = ord[b]; ord[b] = tmp;
-    state.order[it.season] = ord;
-    save(); render();
-  }
-  function stampIt(id, y, d) {
-    if (!d || d.slice(0, 4) !== String(y)) { toast(y + '年の日付を選んでください'); return false; }
-    setRec(id, y, { d: d });
-    lastStamped = id;
-    vibrate();
-    return true;
+  function setSkipped(itemId, year, on){
+    var list = getSkipYears(itemId).filter(function(y){ return y !== year; });
+    if(on) list.push(year);
+    state.skips[itemId] = list;
+    saveState();
   }
 
-  /* ---------- モーダル ---------- */
-  function closeModal() {
-    if (modalRoot && modalRoot.parentNode) modalRoot.parentNode.removeChild(modalRoot);
-    modalRoot = null;
-    try { if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus(); } catch (e) {}
+  function findItem(id){
+    for(var i = 0; i < state.items.length; i++){ if(state.items[i].id === id) return state.items[i]; }
+    return null;
   }
-  function openModal(title, body) {
-    var keep = modalRoot ? lastFocus : document.activeElement;
-    if (modalRoot && modalRoot.parentNode) modalRoot.parentNode.removeChild(modalRoot);
-    modalRoot = null;
-    lastFocus = keep;
-    var closeBtn = h('button', { class: 'icon-btn', type: 'button', 'aria-label': '閉じる', onclick: closeModal, text: '閉じる' });
-    var box = h('div', { class: 'box' },
-      h('div', { class: 'mh' }, h('h2', { text: title }), closeBtn),
-      body);
-    var ov = h('div', { class: 'ov', role: 'dialog', 'aria-modal': 'true', 'aria-label': title }, box);
-    ov.addEventListener('click', function (e) { if (e.target === ov) closeModal(); });
-    document.body.appendChild(ov);
-    modalRoot = ov;
-    try { closeBtn.focus(); } catch (e) {}
-    return ov;
+
+  /* ================= 確認ダイアログ ================= */
+  var confirmOverlay = document.getElementById('confirmOverlay');
+  var confirmMsg = document.getElementById('confirmMsg');
+  var confirmYes = document.getElementById('confirmYes');
+  var confirmNo = document.getElementById('confirmNo');
+  var confirmCallback = null;
+
+  function askConfirm(message, yesLabel, onYes){
+    if(!confirmOverlay){ onYes(); return; }
+    confirmMsg.textContent = message;
+    confirmYes.textContent = yesLabel || 'はい';
+    confirmCallback = onYes;
+    confirmOverlay.hidden = false;
   }
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && modalRoot) closeModal();
+  function closeConfirm(){ if(confirmOverlay) confirmOverlay.hidden = true; confirmCallback = null; }
+  if(confirmYes) confirmYes.addEventListener('click', function(){
+    var cb = confirmCallback;
+    closeConfirm();
+    try{ if(cb) cb(); }catch(e){}
   });
-  function btn(label, cls, fn) {
-    return h('button', { type: 'button', class: 'btn' + (cls ? ' ' + cls : ''), onclick: fn, text: label });
-  }
-  function confirmModal(msg, okLabel, onOk) {
-    var body = h('div', {},
-      h('p', { text: msg }),
-      btn(okLabel, 'danger', function () { closeModal(); onOk(); }),
-      btn('やめる', '', closeModal));
-    openModal('確認', body);
-  }
+  if(confirmNo) confirmNo.addEventListener('click', closeConfirm);
+  if(confirmOverlay) confirmOverlay.addEventListener('click', function(e){ if(e.target === confirmOverlay) closeConfirm(); });
 
-  /* ---------- 詳細ダイアログ ---------- */
-  function openDetail(id) {
-    var it = byId[id]; if (!it) return;
-    var y = view.year, r = getRec(id, y);
-    var body = h('div', {});
-    body.appendChild(h('p', { class: 'sub', text: SK[it.season].n + 'の項目' + (it.custom ? '（自分で追加）' : '') }));
-    var st;
-    if (r && r.d) st = yl(y) + '：' + fmtDate(r.d) + ' に記録';
-    else if (r && r.skip) st = yl(y) + 'は見送り中です';
-    else st = yl(y) + 'は、まだ記録がありません';
-    body.appendChild(h('p', { class: 'status', text: st }));
+  /* ================= タブ描画 ================= */
+  var tabsEl = document.getElementById('tabs');
+  var seasonNoteEl = document.getElementById('seasonNote');
 
-    if (!(r && r.skip)) {
-      var input = h('input', { type: 'date', id: 'dt', min: y + '-01-01', max: y + '-12-31', value: (r && r.d) || defDate(y) });
-      body.appendChild(h('label', { for: 'dt', text: '日付（' + y + '年）' }));
-      body.appendChild(input);
-      body.appendChild(btn(r && r.d ? '日付を更新する' : '今年初めて：この日に押す'.replace('今年', yl(y)), 'primary', function () {
-        if (!input.value) { toast('日付を選んでください'); return; }
-        if (stampIt(id, y, input.value)) { closeModal(); render(); toast('朱印を押しました'); }
-      }));
-      if (r && r.d) {
-        body.appendChild(btn('記録を取り消す', '', function () {
-          setRec(id, y, null); closeModal(); render(); toast('取り消しました');
-        }));
-      }
-      body.appendChild(btn(yl(y) + 'は見送る', '', function () {
-        setRec(id, y, { skip: true }); closeModal(); render(); toast('「見送り」へ移しました');
-      }));
-    } else {
-      body.appendChild(btn('見送りをやめて元に戻す', 'primary', function () {
-        setRec(id, y, null); closeModal(); render(); toast('元の季節へ戻しました');
-      }));
-    }
-
-    body.appendChild(h('h3', { text: '歴代の記録' }));
-    var yrs = state.rec[id] ? Object.keys(state.rec[id]).sort().reverse() : [];
-    if (!yrs.length) {
-      body.appendChild(h('p', { class: 'sub', text: 'まだ記録はありません。' }));
-    } else {
-      var ul = h('ul', { class: 'hist' });
-      yrs.forEach(function (yy) {
-        var v = state.rec[id][yy];
-        ul.appendChild(h('li', {}, h('span', { text: yy + '年' }), h('span', { text: v.skip ? '見送り' : fmtDate(v.d) })));
-      });
-      body.appendChild(ul);
-    }
-
-    var vis = visibleIds(it.season, y), idx = vis.indexOf(id);
-    if (idx >= 0) {
-      body.appendChild(h('h3', { text: '並べ替え' }));
-      body.appendChild(h('div', { class: 'row' },
-        h('button', { type: 'button', class: 'btn', text: '↑ 上へ', disabled: idx === 0 ? true : null, onclick: function () { closeModal(); move(id, -1); } }),
-        h('button', { type: 'button', class: 'btn', text: '↓ 下へ', disabled: idx === vis.length - 1 ? true : null, onclick: function () { closeModal(); move(id, 1); } })));
-    }
-    if (it.custom) {
-      body.appendChild(h('h3', { text: '自分で追加した項目' }));
-      body.appendChild(btn('名前を変更する', '', function () { openNameDialog('rename', id); }));
-      body.appendChild(btn('この項目を削除する', 'danger', function () {
-        confirmModal('「' + it.name + '」と、その記録をすべて削除します。', '削除する', function () {
-          state.custom = state.custom.filter(function (c) { return c.id !== id; });
-          delete state.rec[id];
-          Object.keys(state.order).forEach(function (k) { state.order[k] = state.order[k].filter(function (x) { return x !== id; }); });
-          save(); buildItems(); render(); toast('削除しました');
-        });
-      }));
-    }
-    openModal(it.name, body);
-  }
-
-  function openNameDialog(mode, id) {
-    var it = mode === 'rename' ? byId[id] : null;
-    var body = h('div', {});
-    var input = h('input', { type: 'text', id: 'nm', maxlength: '40', value: it ? it.name : '', autocomplete: 'off' });
-    body.appendChild(h('label', { for: 'nm', text: '項目の名前' }));
-    body.appendChild(input);
-    var sel = null;
-    if (mode === 'add') {
-      sel = h('select', { id: 'se' });
-      var def = view.tab === 'skip' ? seasonOfMonth(NOW.getMonth() + 1) : view.tab;
-      SEASONS.forEach(function (s) {
-        var o = h('option', { value: s.k, text: s.n + '（' + s.r + '）' });
-        if (s.k === def) o.selected = true;
-        sel.appendChild(o);
-      });
-      body.appendChild(h('label', { for: 'se', text: '季節' }));
-      body.appendChild(sel);
-    }
-    body.appendChild(btn(mode === 'add' ? '追加する' : '変更する', 'primary', function () {
-      var name = input.value.trim();
-      if (!name) { toast('名前を入力してください'); return; }
-      if (mode === 'add') {
-        var nid = 'c' + Date.now().toString(36) + Math.floor(Math.random() * 1296).toString(36);
-        state.custom.push({ id: nid, name: name, season: sel.value });
-        view.tab = sel.value;
-        toast('追加しました');
+  function renderTabs(){
+    if(!tabsEl) return;
+    var tabs = SEASON_ORDER.concat(['skipped']);
+    tabsEl.innerHTML = '';
+    tabs.forEach(function(t){
+      var btn = document.createElement('button');
+      var count;
+      if(t === 'skipped'){
+        count = state.items.filter(function(i){ return isSkipped(i.id, referenceYear); }).length;
+        btn.textContent = 'スキップ';
       } else {
-        state.custom.forEach(function (c) { if (c.id === id) c.name = name; });
-        toast('変更しました');
+        count = state.items.filter(function(i){ return i.season === t && !isSkipped(i.id, referenceYear); }).length;
+        btn.textContent = SEASON_LABELS[t];
       }
-      save(); buildItems(); closeModal(); render();
-    }));
-    openModal(mode === 'add' ? '項目を追加' : '名前を変更', body);
-  }
-
-  /* ---------- 設定・ヘルプ ---------- */
-  function openHelp() {
-    var g = h('div', { class: 'guide' },
-      h('h3', { text: '「今年初めて」を記録する' }),
-      h('p', { text: '日常で「今年初めて」と感じたら、丸いスタンプをタップして朱印を押します。公式の開花日や行事ではなく、あなた自身が気づいた日が記録になります。日付を直したいときは、項目の名前をタップしてください。' }),
-      h('h3', { text: '見送りについて' }),
-      h('p', { text: '今年は対象外にしたい項目は、詳細から「見送る」を選ぶと「見送り」タブへ移ります。いつでも「元に戻す」で元の季節へ戻せます。見送りは年ごとの設定です。' }),
-      h('h3', { text: '年の比較' }),
-      h('p', { text: '上部の矢印で参照する年を切り替えられます。各項目には前年の記録が添えて表示され、詳細では歴代の記録を確認できます。' }),
-      h('h3', { text: 'パスコード' }),
-      h('p', { text: '初期状態ではロックなしです。設定画面から4桁の数字を登録するとロックが有効になり、同じ画面でオフや変更ができます。' }),
-      h('h3', { text: 'データについて' }),
-      h('p', { text: '記録はこの端末のブラウザ内にだけ保存されます。機種変更や端末の初期化に備えて、設定画面から書き出し（バックアップ）をしておくと安心です。' }));
-    openModal('使い方', g);
-  }
-
-  function openSettings() {
-    var body = h('div', {});
-    // 日付表記
-    body.appendChild(h('h3', { text: '日付の表記' }));
-    body.appendChild(h('div', { class: 'row' },
-      h('button', { type: 'button', class: 'btn', 'aria-pressed': state.set.kanji ? 'false' : 'true', text: (state.set.kanji ? '' : '✓ ') + '標準（3/15）', onclick: function () { state.set.kanji = false; save(); render(); openSettings(); } }),
-      h('button', { type: 'button', class: 'btn', 'aria-pressed': state.set.kanji ? 'true' : 'false', text: (state.set.kanji ? '✓ ' : '') + '和数字（三月十五日）', onclick: function () { state.set.kanji = true; save(); render(); openSettings(); } })));
-    // パスコード
-    body.appendChild(h('h3', { text: 'パスコードロック' }));
-    body.appendChild(h('p', { text: '現在：' + (state.set.pass ? 'オン' : 'オフ（ロックなし）') }));
-    if (!state.set.pass) {
-      body.appendChild(btn('4桁のパスコードを設定する', '', openPassSetup));
-    } else {
-      body.appendChild(btn('パスコードを変更する', '', openPassSetup));
-      body.appendChild(btn('パスコードをオフにする', '', function () {
-        confirmModal('パスコードロックをオフにします。', 'オフにする', function () {
-          state.set.pass = ''; save(); toast('ロックをオフにしました');
-        });
-      }));
-      body.appendChild(btn('今すぐロックする', '', function () { closeModal(); showLock(); }));
+      var c = document.createElement('span');
+      c.className = 'count';
+      c.textContent = '(' + count + ')';
+      btn.appendChild(c);
+      if(t === currentTab) btn.className = 'active';
+      btn.addEventListener('click', function(){
+        currentTab = t;
+        renderTabs();
+        renderList();
+      });
+      tabsEl.appendChild(btn);
+    });
+    if(seasonNoteEl){
+      if(currentTab === 'skipped'){
+        seasonNoteEl.textContent = referenceYear + '年はスキップした項目です。';
+      } else {
+        seasonNoteEl.textContent = SEASON_LABELS[currentTab] + '（' + SEASON_RANGES[currentTab] + '）';
+      }
     }
-    // バックアップ
-    body.appendChild(h('h3', { text: 'バックアップ' }));
-    body.appendChild(h('p', { class: 'sub', text: '記録データをJSONファイルで書き出し・復元できます（パスコードは含まれません）。' }));
-    var file = h('input', { type: 'file', accept: '.json,application/json', style: 'display:none', 'aria-hidden': 'true', tabindex: '-1' });
-    file.addEventListener('change', function () { importFile(file); });
-    body.appendChild(file);
-    body.appendChild(h('button', { type: 'button', class: 'btn quiet', text: '記録を書き出す', onclick: doExport }));
-    body.appendChild(h('button', { type: 'button', class: 'btn quiet', text: '記録を読み込む', onclick: function () { file.click(); } }));
-    body.appendChild(h('button', { type: 'button', class: 'btn quiet', text: 'テキストで表示', onclick: function () { showExportText(exportJson()); } }));
-    openModal('設定', body);
   }
 
-  function openPassSetup() {
-    var body = h('div', {});
-    var a = h('input', { type: 'password', id: 'p1', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', autocomplete: 'off' });
-    var b = h('input', { type: 'password', id: 'p2', inputmode: 'numeric', pattern: '[0-9]*', maxlength: '4', autocomplete: 'off' });
-    body.appendChild(h('label', { for: 'p1', text: '新しいパスコード（数字4桁）' }));
-    body.appendChild(a);
-    body.appendChild(h('label', { for: 'p2', text: 'もう一度入力' }));
-    body.appendChild(b);
-    body.appendChild(h('p', { class: 'sub', text: '忘れるとアプリを開けなくなります。書き出したバックアップを保管しておくと安心です。' }));
-    body.appendChild(btn('登録する', 'primary', function () {
-      if (!/^\d{4}$/.test(a.value)) { toast('数字4桁で入力してください'); return; }
-      if (a.value !== b.value) { toast('2つの入力が一致しません'); return; }
-      state.set.pass = a.value; save(); closeModal(); toast('パスコードを設定しました');
-    }));
-    openModal('パスコードの設定', body);
+  /* ================= 年ヘッダー ================= */
+  var yearLabelEl = document.getElementById('yearLabel');
+  var yearNoteEl = document.getElementById('yearNote');
+  var yearPrevBtn = document.getElementById('yearPrev');
+  var yearNextBtn = document.getElementById('yearNext');
+  var MIN_YEAR = REAL_TODAY.year - 12;
+
+  function renderYearHeader(){
+    if(yearLabelEl) yearLabelEl.textContent = referenceYear + '年';
+    if(yearNoteEl) yearNoteEl.hidden = (referenceYear === REAL_TODAY.year);
+    if(yearNextBtn) yearNextBtn.disabled = (referenceYear >= REAL_TODAY.year);
+    if(yearPrevBtn) yearPrevBtn.disabled = (referenceYear <= MIN_YEAR);
+  }
+  function changeYear(delta){
+    var ny = referenceYear + delta;
+    if(ny > REAL_TODAY.year || ny < MIN_YEAR) return;
+    referenceYear = ny;
+    if(referenceYear !== REAL_TODAY.year && reorderMode){ setReorderMode(false); }
+    renderYearHeader();
+    renderTabs();
+    renderList();
+  }
+  if(yearPrevBtn) yearPrevBtn.addEventListener('click', function(){ changeYear(-1); });
+  if(yearNextBtn) yearNextBtn.addEventListener('click', function(){ changeYear(1); });
+
+  /* ================= 並べ替えモード ================= */
+  var btnReorder = document.getElementById('btnReorder');
+  var reorderBanner = document.getElementById('reorderBanner');
+  var reorderDoneBtn = document.getElementById('reorderDone');
+  function setReorderMode(on){
+    reorderMode = on;
+    if(reorderBanner) reorderBanner.hidden = !on;
+    if(btnReorder) btnReorder.style.color = on ? 'var(--vermilion)' : '';
+    renderList();
+  }
+  if(btnReorder) btnReorder.addEventListener('click', function(){ setReorderMode(!reorderMode); });
+  if(reorderDoneBtn) reorderDoneBtn.addEventListener('click', function(){ setReorderMode(false); });
+
+  /* ================= リスト描画 ================= */
+  var itemListEl = document.getElementById('itemList');
+  var addItemBtn = document.getElementById('addItemBtn');
+
+  function itemsForCurrentTab(){
+    var list;
+    if(currentTab === 'skipped'){
+      list = state.items.filter(function(i){ return isSkipped(i.id, referenceYear); });
+      list.sort(function(a, b){
+        var sa = SEASON_ORDER.indexOf(a.season), sb = SEASON_ORDER.indexOf(b.season);
+        if(sa !== sb) return sa - sb;
+        return (a.order || 0) - (b.order || 0);
+      });
+    } else {
+      list = state.items.filter(function(i){ return i.season === currentTab && !isSkipped(i.id, referenceYear); });
+      list.sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+    }
+    return list;
   }
 
-  function exportJson() {
-    return JSON.stringify({
-      app: 'somugoyomi', version: 1, exportedAt: new Date().toISOString(),
-      data: { rec: state.rec, custom: state.custom, order: state.order, set: { kanji: state.set.kanji } }
-    }, null, 2);
+  function renderList(){
+    if(!itemListEl) return;
+    try{
+      itemListEl.innerHTML = '';
+      var list = itemsForCurrentTab();
+      var isPastYear = (referenceYear !== REAL_TODAY.year);
+      if(addItemBtn) addItemBtn.hidden = (currentTab === 'skipped');
+
+      if(list.length === 0){
+        var empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = (currentTab === 'skipped')
+          ? 'スキップした項目はありません。'
+          : 'この季節の項目はありません。';
+        itemListEl.appendChild(empty);
+        return;
+      }
+
+      list.forEach(function(item, idx){
+        var li = document.createElement('li');
+        li.className = 'item-row';
+
+        var rec = getRecordForYear(item.id, referenceYear);
+        var prevRec = getRecordForYear(item.id, referenceYear - 1);
+        var inSkipTab = (currentTab === 'skipped');
+
+        var mainBtn = document.createElement('button');
+        mainBtn.className = 'item-main';
+
+        var nameDiv = document.createElement('div');
+        nameDiv.className = 'item-name';
+        nameDiv.textContent = item.name;
+        mainBtn.appendChild(nameDiv);
+
+        var subDiv = document.createElement('div');
+        subDiv.className = 'item-sub';
+        var subText = '去年： ' + (prevRec ? formatDate(prevRec.year, prevRec.month, prevRec.day) : '－');
+        if(inSkipTab) subText = SEASON_LABELS[item.season] + '　／　' + subText;
+        subDiv.textContent = subText;
+        mainBtn.appendChild(subDiv);
+
+        var canStamp = !inSkipTab && !isPastYear && !reorderMode;
+        if(!canStamp){ mainBtn.disabled = true; }
+        mainBtn.addEventListener('click', function(){ if(canStamp) handleTap(item.id); });
+        li.appendChild(mainBtn);
+
+        var stamp = document.createElement('div');
+        stamp.className = 'stamp' + (rec ? ' on' : '') + (canStamp ? '' : ' static');
+        if(rec){
+          var d1 = document.createElement('div'); d1.className = 'stamp-mark'; d1.textContent = '印';
+          var d2 = document.createElement('div'); d2.className = 'stamp-date'; d2.textContent = formatDate(rec.year, rec.month, rec.day);
+          stamp.appendChild(d1); stamp.appendChild(d2);
+        } else {
+          var d3 = document.createElement('div'); d3.className = 'stamp-mark'; d3.textContent = inSkipTab ? '休' : '未';
+          stamp.appendChild(d3);
+        }
+        stamp.addEventListener('click', function(){ if(canStamp) handleTap(item.id); });
+        li.appendChild(stamp);
+
+        var side = document.createElement('div');
+        side.className = 'row-side';
+
+        if(reorderMode && !inSkipTab){
+          var rc = document.createElement('div');
+          rc.className = 'reorder-controls';
+          var up = document.createElement('button');
+          up.textContent = '▲'; up.setAttribute('aria-label', '上へ');
+          up.disabled = (idx === 0);
+          up.addEventListener('click', function(){ moveItem(item.id, -1); });
+          var down = document.createElement('button');
+          down.textContent = '▼'; down.setAttribute('aria-label', '下へ');
+          down.disabled = (idx === list.length - 1);
+          down.addEventListener('click', function(){ moveItem(item.id, 1); });
+          rc.appendChild(up); rc.appendChild(down);
+          side.appendChild(rc);
+
+          var editBtn = document.createElement('button');
+          editBtn.className = 'ghost-btn';
+          editBtn.textContent = '編集';
+          editBtn.addEventListener('click', function(){ openEdit(item.id); });
+          side.appendChild(editBtn);
+        } else {
+          if(!isPastYear){
+            var skipBtn = document.createElement('button');
+            skipBtn.className = 'ghost-btn';
+            if(inSkipTab){
+              skipBtn.textContent = '戻す';
+              skipBtn.addEventListener('click', function(){ setSkipped(item.id, referenceYear, false); renderTabs(); renderList(); });
+            } else {
+              skipBtn.textContent = '今年はスキップ';
+              skipBtn.addEventListener('click', function(){ setSkipped(item.id, referenceYear, true); renderTabs(); renderList(); });
+            }
+            side.appendChild(skipBtn);
+          }
+          var detailBtn = document.createElement('button');
+          detailBtn.className = 'ghost-btn';
+          detailBtn.textContent = '詳細';
+          detailBtn.addEventListener('click', function(){ openDetail(item.id); });
+          side.appendChild(detailBtn);
+        }
+
+        li.appendChild(side);
+        itemListEl.appendChild(li);
+      });
+    }catch(e){
+      itemListEl.innerHTML = '<div class="empty-state">表示中に問題が起きました。ページを再読み込みしてください。</div>';
+    }
   }
-  function doExport() {
-    var json = exportJson();
-    try {
+
+  function handleTap(itemId){
+    var rec = getRecordForYear(itemId, referenceYear);
+    if(rec){
+      askConfirm('この項目の今年の記録を取り消しますか？', '取り消す', function(){
+        removeRecordForYear(itemId, referenceYear);
+        renderList();
+      });
+      return;
+    }
+    var t = todayParts();
+    setRecordForYear(itemId, referenceYear, t.month, t.day);
+    renderList();
+  }
+
+  function moveItem(itemId, dir){
+    var item = findItem(itemId);
+    if(!item) return;
+    var siblings = state.items.filter(function(i){ return i.season === item.season && !isSkipped(i.id, referenceYear); })
+      .sort(function(a, b){ return (a.order || 0) - (b.order || 0); });
+    var idx = -1;
+    for(var i = 0; i < siblings.length; i++){ if(siblings[i].id === itemId){ idx = i; break; } }
+    var swapIdx = idx + dir;
+    if(idx < 0 || swapIdx < 0 || swapIdx >= siblings.length) return;
+    var a = siblings[idx], b = siblings[swapIdx];
+    var tmp = a.order; a.order = b.order; b.order = tmp;
+    // 同順位が混在していても確実に入れ替わるよう、順序を連番に振り直す
+    siblings.sort(function(x, y){ return (x.order || 0) - (y.order || 0); });
+    siblings.forEach(function(it, n){ it.order = n; });
+    saveState();
+    renderList();
+  }
+
+  /* ================= 詳細ダイアログ ================= */
+  var detailOverlay = document.getElementById('detailOverlay');
+  var detailTitle = document.getElementById('detailTitle');
+  var detailBody = document.getElementById('detailBody');
+  var detailClose = document.getElementById('detailClose');
+
+  function openDetail(itemId){
+    var item = findItem(itemId);
+    if(!item || !detailOverlay) return;
+    detailTitle.textContent = item.name;
+    var entries = [];
+    getRecordsFor(itemId).forEach(function(r){
+      entries.push({ year: r.year, text: formatDate(r.year, r.month, r.day), skip: false });
+    });
+    getSkipYears(itemId).forEach(function(y){
+      if(!getRecordForYear(itemId, y)){ entries.push({ year: y, text: 'スキップ', skip: true }); }
+    });
+    entries.sort(function(a, b){ return b.year - a.year; });
+    detailBody.innerHTML = '';
+    if(entries.length === 0){
+      var p = document.createElement('div');
+      p.className = 'empty-state';
+      p.style.padding = '1.5rem 0.5rem';
+      p.textContent = 'まだ記録がありません。';
+      detailBody.appendChild(p);
+    } else {
+      var ul = document.createElement('ul');
+      ul.className = 'timeline';
+      entries.forEach(function(en){
+        var li = document.createElement('li');
+        var y = document.createElement('span'); y.className = 'yr'; y.textContent = en.year + '年';
+        var d = document.createElement('span'); d.textContent = en.text; if(en.skip) d.className = 'skip';
+        li.appendChild(y); li.appendChild(d);
+        ul.appendChild(li);
+      });
+      detailBody.appendChild(ul);
+    }
+    detailOverlay.hidden = false;
+  }
+  function closeDetail(){ if(detailOverlay) detailOverlay.hidden = true; }
+  if(detailClose) detailClose.addEventListener('click', closeDetail);
+  if(detailOverlay) detailOverlay.addEventListener('click', function(e){ if(e.target === detailOverlay) closeDetail(); });
+
+  /* ================= 項目追加 ================= */
+  var addOverlay = document.getElementById('addOverlay');
+  var addSeason = document.getElementById('addSeason');
+  var addName = document.getElementById('addName');
+  var addClose = document.getElementById('addClose');
+  var addCancel = document.getElementById('addCancel');
+  var addSubmit = document.getElementById('addSubmit');
+
+  if(addItemBtn) addItemBtn.addEventListener('click', function(){
+    if(addSeason) addSeason.value = (SEASON_ORDER.indexOf(currentTab) >= 0) ? currentTab : 'spring';
+    if(addName) addName.value = '';
+    if(addOverlay) addOverlay.hidden = false;
+  });
+  function closeAdd(){ if(addOverlay) addOverlay.hidden = true; }
+  if(addClose) addClose.addEventListener('click', closeAdd);
+  if(addCancel) addCancel.addEventListener('click', closeAdd);
+  if(addOverlay) addOverlay.addEventListener('click', function(e){ if(e.target === addOverlay) closeAdd(); });
+  if(addSubmit) addSubmit.addEventListener('click', function(){
+    try{
+      var name = (addName.value || '').trim();
+      if(!name) return;
+      var season = addSeason.value;
+      var orders = state.items.filter(function(i){ return i.season === season; }).map(function(i){ return i.order || 0; });
+      var maxOrder = orders.length ? Math.max.apply(null, orders) : -1;
+      state.items.push({
+        id: 'custom-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+        season: season, name: name, custom: true, order: maxOrder + 1
+      });
+      saveState();
+      closeAdd();
+      currentTab = season;
+      renderTabs();
+      renderList();
+    }catch(e){ /* 追加に失敗しても画面は維持 */ }
+  });
+
+  /* ================= 項目編集 ================= */
+  var editOverlay = document.getElementById('editOverlay');
+  var editName = document.getElementById('editName');
+  var editClose = document.getElementById('editClose');
+  var editCancel = document.getElementById('editCancel');
+  var editSubmit = document.getElementById('editSubmit');
+  var editDeleteRow = document.getElementById('editDeleteRow');
+  var editDelete = document.getElementById('editDelete');
+  var editingItemId = null;
+
+  function openEdit(itemId){
+    var item = findItem(itemId);
+    if(!item || !editOverlay) return;
+    editingItemId = itemId;
+    editName.value = item.name;
+    editDeleteRow.hidden = !item.custom;
+    editOverlay.hidden = false;
+  }
+  function closeEdit(){ if(editOverlay) editOverlay.hidden = true; editingItemId = null; }
+  if(editClose) editClose.addEventListener('click', closeEdit);
+  if(editCancel) editCancel.addEventListener('click', closeEdit);
+  if(editOverlay) editOverlay.addEventListener('click', function(e){ if(e.target === editOverlay) closeEdit(); });
+  if(editSubmit) editSubmit.addEventListener('click', function(){
+    try{
+      if(!editingItemId) return;
+      var item = findItem(editingItemId);
+      var name = (editName.value || '').trim();
+      if(!item || !name) return;
+      item.name = name;
+      saveState();
+      closeEdit();
+      renderList();
+    }catch(e){}
+  });
+  if(editDelete) editDelete.addEventListener('click', function(){
+    var targetId = editingItemId;
+    if(!targetId) return;
+    askConfirm('この項目を削除します。記録も失われます。よろしいですか？', '削除する', function(){
+      state.items = state.items.filter(function(i){ return i.id !== targetId; });
+      delete state.records[targetId];
+      delete state.skips[targetId];
+      saveState();
+      closeEdit();
+      renderTabs();
+      renderList();
+    });
+  });
+
+  /* ================= 設定ダイアログ ================= */
+  var btnSettings = document.getElementById('btnSettings');
+  var settingsOverlay = document.getElementById('settingsOverlay');
+  var settingsClose = document.getElementById('settingsClose');
+  var passcodeToggle = document.getElementById('passcodeToggle');
+  var passcodeChangeRow = document.getElementById('passcodeChangeRow');
+  var passcodeChangeBtn = document.getElementById('passcodeChangeBtn');
+
+  function renderSettings(){
+    try{
+      var radios = document.getElementsByName('dateStyle');
+      for(var i = 0; i < radios.length; i++){ radios[i].checked = (radios[i].value === state.settings.dateStyle); }
+    }catch(e){}
+    if(passcodeToggle) passcodeToggle.checked = !!state.settings.passcodeEnabled;
+    if(passcodeChangeRow) passcodeChangeRow.hidden = !state.settings.passcodeEnabled;
+  }
+  if(btnSettings) btnSettings.addEventListener('click', function(){
+    renderSettings();
+    if(settingsOverlay) settingsOverlay.hidden = false;
+  });
+  if(settingsClose) settingsClose.addEventListener('click', function(){ settingsOverlay.hidden = true; });
+  if(settingsOverlay) settingsOverlay.addEventListener('click', function(e){ if(e.target === settingsOverlay) settingsOverlay.hidden = true; });
+
+  Array.prototype.forEach.call(document.getElementsByName('dateStyle'), function(radio){
+    radio.addEventListener('change', function(){
+      if(radio.checked){
+        state.settings.dateStyle = radio.value;
+        saveState();
+        renderList();
+      }
+    });
+  });
+
+  /* ---- パスコード設定・解除・変更 ---- */
+  var pinSetupOverlay = document.getElementById('pinSetupOverlay');
+  var pinSetupTitle = document.getElementById('pinSetupTitle');
+  var pinSetupLabel1 = document.getElementById('pinSetupLabel1');
+  var pinSetupLabel2 = document.getElementById('pinSetupLabel2');
+  var pinInput1 = document.getElementById('pinInput1');
+  var pinInput2Wrap = document.getElementById('pinInput2Wrap');
+  var pinInput2 = document.getElementById('pinInput2');
+  var pinSetupErr = document.getElementById('pinSetupErr');
+  var pinSetupClose = document.getElementById('pinSetupClose');
+  var pinSetupCancel = document.getElementById('pinSetupCancel');
+  var pinSetupOk = document.getElementById('pinSetupOk');
+  var pinFlow = null; // 'enable' | 'disable' | 'change-verify' | 'change-new'
+
+  function isFourDigits(v){ return /^[0-9]{4}$/.test(v || ''); }
+
+  function openPinSetup(flow){
+    pinFlow = flow;
+    pinSetupErr.textContent = '';
+    pinInput1.value = '';
+    pinInput2.value = '';
+    if(flow === 'enable'){
+      pinSetupTitle.textContent = 'パスコードを設定';
+      pinSetupLabel1.textContent = '新しいパスコード（4桁）';
+      pinSetupLabel2.textContent = 'もう一度入力してください';
+      pinInput2Wrap.hidden = false;
+    } else if(flow === 'disable' || flow === 'change-verify'){
+      pinSetupTitle.textContent = '現在のパスコードを入力';
+      pinSetupLabel1.textContent = 'パスコード（4桁）';
+      pinInput2Wrap.hidden = true;
+    } else if(flow === 'change-new'){
+      pinSetupTitle.textContent = '新しいパスコード';
+      pinSetupLabel1.textContent = '新しいパスコード（4桁）';
+      pinSetupLabel2.textContent = 'もう一度入力してください';
+      pinInput2Wrap.hidden = false;
+    }
+    pinSetupOverlay.hidden = false;
+    setTimeout(function(){ try{ pinInput1.focus(); }catch(e){} }, 30);
+  }
+  function closePinSetup(){
+    pinSetupOverlay.hidden = true;
+    pinFlow = null;
+    renderSettings();
+  }
+  if(pinSetupClose) pinSetupClose.addEventListener('click', closePinSetup);
+  if(pinSetupCancel) pinSetupCancel.addEventListener('click', closePinSetup);
+  if(pinSetupOverlay) pinSetupOverlay.addEventListener('click', function(e){ if(e.target === pinSetupOverlay) closePinSetup(); });
+
+  if(pinSetupOk) pinSetupOk.addEventListener('click', function(){
+    try{
+      var v1 = pinInput1.value.trim();
+      if(!isFourDigits(v1)){ pinSetupErr.textContent = '半角数字4桁で入力してください。'; return; }
+
+      if(pinFlow === 'enable' || pinFlow === 'change-new'){
+        var v2 = pinInput2.value.trim();
+        if(v1 !== v2){ pinSetupErr.textContent = '入力が一致しません。もう一度お試しください。'; return; }
+        state.settings.passcode = v1;
+        state.settings.passcodeEnabled = true;
+        saveState();
+        closePinSetup();
+      } else if(pinFlow === 'disable'){
+        if(v1 !== state.settings.passcode){ pinSetupErr.textContent = 'パスコードが違います。'; return; }
+        state.settings.passcodeEnabled = false;
+        state.settings.passcode = null;
+        saveState();
+        closePinSetup();
+      } else if(pinFlow === 'change-verify'){
+        if(v1 !== state.settings.passcode){ pinSetupErr.textContent = 'パスコードが違います。'; return; }
+        openPinSetup('change-new');
+      }
+    }catch(e){ pinSetupErr.textContent = '処理に失敗しました。もう一度お試しください。'; }
+  });
+
+  if(passcodeToggle) passcodeToggle.addEventListener('change', function(){
+    if(passcodeToggle.checked && !state.settings.passcodeEnabled){
+      passcodeToggle.checked = false; // 設定完了までは反映しない
+      openPinSetup('enable');
+    } else if(!passcodeToggle.checked && state.settings.passcodeEnabled){
+      passcodeToggle.checked = true; // 確認完了までは反映しない
+      openPinSetup('disable');
+    }
+  });
+  if(passcodeChangeBtn) passcodeChangeBtn.addEventListener('click', function(){ openPinSetup('change-verify'); });
+
+  /* ================= バックアップ（書き出し／読み込み） ================= */
+  var backupOpenBtn = document.getElementById('backupOpenBtn');
+  var backupOverlay = document.getElementById('backupOverlay');
+  var backupClose = document.getElementById('backupClose');
+  var exportFileBtn = document.getElementById('exportFileBtn');
+  var exportCopyBtn = document.getElementById('exportCopyBtn');
+  var exportText = document.getElementById('exportText');
+  var importFile = document.getElementById('importFile');
+  var importText = document.getElementById('importText');
+  var importRunBtn = document.getElementById('importRunBtn');
+  var backupStatus = document.getElementById('backupStatus');
+
+  function setBackupStatus(msg, isErr){
+    if(!backupStatus) return;
+    backupStatus.textContent = msg || '';
+    backupStatus.className = 'status-msg' + (isErr ? ' err' : '');
+  }
+
+  function buildExportJson(){
+    var payload = {
+      app: 'somugoyomi',
+      version: 2,
+      exportedAt: new Date().toISOString(),
+      data: {
+        items: state.items,
+        records: state.records,
+        skips: state.skips,
+        dateStyle: state.settings.dateStyle
+      }
+    };
+    return JSON.stringify(payload, null, 2);
+  }
+
+  if(backupOpenBtn) backupOpenBtn.addEventListener('click', function(){
+    try{ exportText.value = buildExportJson(); }catch(e){ exportText.value = ''; }
+    importText.value = '';
+    if(importFile) importFile.value = '';
+    setBackupStatus('');
+    backupOverlay.hidden = false;
+  });
+  if(backupClose) backupClose.addEventListener('click', function(){ backupOverlay.hidden = true; });
+  if(backupOverlay) backupOverlay.addEventListener('click', function(e){ if(e.target === backupOverlay) backupOverlay.hidden = true; });
+
+  if(exportFileBtn) exportFileBtn.addEventListener('click', function(){
+    try{
+      var json = buildExportJson();
+      exportText.value = json;
+      var d = todayParts();
+      var fname = 'somugoyomi-backup-' + d.year + ('0' + d.month).slice(-2) + ('0' + d.day).slice(-2) + '.json';
       var blob = new Blob([json], { type: 'application/json' });
       var url = URL.createObjectURL(blob);
-      var a = h('a', { href: url, download: 'somugoyomi-' + todayStr() + '.json' });
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = fname;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      setTimeout(function () { try { URL.revokeObjectURL(url); } catch (e) {} }, 2000);
-      toast('書き出しました');
-    } catch (e) {
-      showExportText(json);
+      setTimeout(function(){ try{ URL.revokeObjectURL(url); }catch(e){} }, 2000);
+      setBackupStatus('保存を試みました。保存できない環境では、下の欄の内容をコピーしてメモ等に貼り付けてください。');
+    }catch(e){
+      setBackupStatus('ファイル保存に失敗しました。下の欄の内容をコピーしてご利用ください。', true);
     }
-  }
-  function showExportText(json) {
-    var ta = h('textarea', { readonly: 'readonly', 'aria-label': '記録データ', style: 'width:100%;min-height:200px;font-size:13px;font-family:monospace;padding:8px;border:1px solid var(--ink);border-radius:8px;background:var(--card);color:var(--ink)' });
-    ta.value = json;
-    var body = h('div', {},
-      h('p', { class: 'sub', text: '全体を選択してコピーし、メモなどに保管してください。' }),
-      ta,
-      btn('すべて選択', '', function () { try { ta.focus(); ta.select(); } catch (e) {} }));
-    openModal('記録データ', body);
-  }
-  function importFile(input) {
-    var f = input.files && input.files[0];
-    if (!f) return;
-    var rd = new FileReader();
-    rd.onerror = function () { toast('ファイルを読み込めませんでした'); };
-    rd.onload = function () {
-      var obj;
-      try { obj = JSON.parse(String(rd.result)); } catch (e) { toast('JSONとして読み込めませんでした'); return; }
-      var data = obj && obj.data ? obj.data : obj;
-      if (!data || typeof data !== 'object' || typeof data.rec !== 'object' || data.rec === null) { toast('そむごよみのデータではありません'); return; }
-      confirmModal('現在の記録を、読み込んだデータで置き換えます。よろしいですか？', '置き換える', function () {
-        state = normalize(data, state.set.pass);
-        save(); buildItems(); render(); toast('読み込みました');
-      });
-    };
-    try { rd.readAsText(f); } catch (e) { toast('ファイルを読み込めませんでした'); }
-    input.value = '';
-  }
+  });
 
-  /* ---------- パスコードロック ---------- */
-  function showLock() {
-    if (!state.set.pass) return;
-    if (document.querySelector('.lock')) return;
-    closeModal();
-    var app = $('#app');
-    app.setAttribute('aria-hidden', 'true');
-    try { app.inert = true; } catch (e) {}
-    var buf = '';
-    var dots = h('div', { class: 'dots', 'aria-hidden': 'true' });
-    var msg = h('p', { class: 'msg', role: 'alert' });
-    function drawDots() {
-      dots.textContent = '';
-      for (var i = 0; i < 4; i++) dots.appendChild(h('span', { text: i < buf.length ? '●' : '○' }));
-    }
-    function unlock() {
-      document.removeEventListener('keydown', lockKeyHandler);
-      lockKeyHandler = null;
-      if (ov.parentNode) ov.parentNode.removeChild(ov);
-      app.removeAttribute('aria-hidden');
-      try { app.inert = false; } catch (e) {}
-    }
-    function press(d) {
-      if (buf.length >= 4) return;
-      buf += d; msg.textContent = ''; drawDots(); vibrate();
-      if (buf.length === 4) {
-        setTimeout(function () {
-          if (buf === state.set.pass) unlock();
-          else { buf = ''; drawDots(); msg.textContent = '違います。もう一度どうぞ。'; }
-        }, 120);
+  if(exportCopyBtn) exportCopyBtn.addEventListener('click', function(){
+    try{
+      exportText.value = buildExportJson();
+      var done = false;
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(exportText.value).then(function(){
+          setBackupStatus('コピーしました。');
+        }).catch(function(){
+          fallbackCopy();
+        });
+        done = true;
       }
+      if(!done) fallbackCopy();
+    }catch(e){ fallbackCopy(); }
+  });
+  function fallbackCopy(){
+    try{
+      exportText.focus();
+      exportText.select();
+      var ok = document.execCommand('copy');
+      setBackupStatus(ok ? 'コピーしました。' : '自動コピーできませんでした。欄の内容を長押しして選択・コピーしてください。', !ok);
+    }catch(e){
+      setBackupStatus('自動コピーできませんでした。欄の内容を選択してコピーしてください。', true);
     }
-    function back() { buf = buf.slice(0, -1); drawDots(); }
-    var pad = h('div', { class: 'pad' });
-    ['1', '2', '3', '4', '5', '6', '7', '8', '9'].forEach(function (d) {
-      pad.appendChild(h('button', { type: 'button', text: d, 'aria-label': d, onclick: function () { press(d); } }));
+  }
+
+  if(importFile) importFile.addEventListener('change', function(){
+    try{
+      var f = importFile.files && importFile.files[0];
+      if(!f) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        try{
+          importText.value = String(reader.result || '');
+          setBackupStatus('ファイルを読み込みました。内容を確認して「この内容で復元する」を押してください。');
+        }catch(e){ setBackupStatus('ファイルを読み込めませんでした。', true); }
+      };
+      reader.onerror = function(){ setBackupStatus('ファイルを読み込めませんでした。', true); };
+      reader.readAsText(f);
+    }catch(e){ setBackupStatus('ファイルを読み込めませんでした。', true); }
+  });
+
+  function parseImport(text){
+    var obj = JSON.parse(text);
+    if(!obj || obj.app !== 'somugoyomi' || !obj.data) throw new Error('format');
+    var d = obj.data;
+    if(!Array.isArray(d.items)) throw new Error('items');
+
+    var items = [];
+    var seen = {};
+    d.items.forEach(function(it, n){
+      if(!it || typeof it.id !== 'string' || typeof it.name !== 'string') return;
+      if(SEASON_ORDER.indexOf(it.season) < 0) return;
+      if(seen[it.id]) return;
+      seen[it.id] = true;
+      items.push({
+        id: it.id,
+        season: it.season,
+        name: it.name.slice(0, 80),
+        custom: !!it.custom,
+        order: (typeof it.order === 'number') ? it.order : n
+      });
     });
-    pad.appendChild(h('button', { type: 'button', class: 'ph', tabindex: '-1', 'aria-hidden': 'true' }));
-    pad.appendChild(h('button', { type: 'button', text: '0', 'aria-label': '0', onclick: function () { press('0'); } }));
-    pad.appendChild(h('button', { type: 'button', text: '⌫', 'aria-label': '一文字消す', onclick: back }));
-    var ov = h('div', { class: 'lock', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'パスコード入力' },
-      h('h2', { text: 'そむごよみ' }),
-      h('p', { class: 'sub', text: 'パスコードを入力してください' }),
-      dots, msg, pad);
-    document.body.appendChild(ov);
-    drawDots();
-    lockKeyHandler = function (e) {
-      if (/^[0-9]$/.test(e.key)) press(e.key);
-      else if (e.key === 'Backspace') back();
-    };
-    document.addEventListener('keydown', lockKeyHandler);
+    if(items.length === 0) throw new Error('empty');
+
+    var records = {};
+    if(d.records && typeof d.records === 'object'){
+      Object.keys(d.records).forEach(function(id){
+        if(!seen[id] || !Array.isArray(d.records[id])) return;
+        var list = [];
+        d.records[id].forEach(function(r){
+          if(!r) return;
+          var y = r.year, m = r.month, dd = r.day;
+          if(typeof y === 'number' && typeof m === 'number' && typeof dd === 'number' &&
+             y >= 1900 && y <= 2200 && m >= 1 && m <= 12 && dd >= 1 && dd <= 31){
+            list.push({ year: Math.floor(y), month: Math.floor(m), day: Math.floor(dd) });
+          }
+        });
+        if(list.length) records[id] = list;
+      });
+    }
+
+    var skips = {};
+    if(d.skips && typeof d.skips === 'object'){
+      Object.keys(d.skips).forEach(function(id){
+        if(!seen[id] || !Array.isArray(d.skips[id])) return;
+        var ys = d.skips[id].filter(function(y){ return typeof y === 'number' && y >= 1900 && y <= 2200; });
+        if(ys.length) skips[id] = ys;
+      });
+    }
+
+    return { items: items, records: records, skips: skips, dateStyle: (d.dateStyle === 'wa') ? 'wa' : 'standard' };
   }
 
-  /* ---------- 画面描画 ---------- */
-  function cardNode(it, y, skipMode) {
-    var r = getRec(it.id, y);
-    var pr = getRec(it.id, y - 1);
-    var stampBtn;
-    if (skipMode) {
-      stampBtn = h('button', { type: 'button', class: 'stamp restore', 'aria-label': it.name + ' を元の季節に戻す', text: '戻す', onclick: function () {
-        setRec(it.id, y, null); render(); toast('元の季節へ戻しました');
-      } });
-    } else if (r && r.d) {
-      stampBtn = h('button', { type: 'button', class: 'stamp on' + (lastStamped === it.id ? ' pop' : ''), 'aria-label': it.name + '：' + fmtDate(r.d) + ' に記録済み。詳細を開く', text: '印', onclick: function () { openDetail(it.id); } });
-    } else {
-      stampBtn = h('button', { type: 'button', class: 'stamp', 'aria-label': it.name + ' に今年初めての朱印を押す', text: '押す', onclick: function () {
-        if (y === CUR) { stampIt(it.id, y, todayStr()); render(); toast('朱印を押しました'); }
-        else openDetail(it.id);
-      } });
+  if(importRunBtn) importRunBtn.addEventListener('click', function(){
+    var text = (importText.value || '').trim();
+    if(!text){ setBackupStatus('読み込む内容がありません。ファイルを選ぶか、内容を貼り付けてください。', true); return; }
+    var parsed;
+    try{
+      parsed = parseImport(text);
+    }catch(e){
+      setBackupStatus('読み込めませんでした。「そむごよみ」で書き出したJSONか確認してください。', true);
+      return;
     }
-    var meta = [];
-    if (skipMode) {
-      meta.push(h('span', { class: 'mt', text: SK[it.season].n + 'の項目・' + yl(y) + 'は見送り' }));
-    } else {
-      meta.push(h('span', { class: 'mt' }, yl(y) + '：', h('b', { text: r && r.d ? fmtDate(r.d) : '未記録' })));
-    }
-    var ptxt = pr ? (pr.skip ? '見送り' : fmtDate(pr.d)) : '記録なし';
-    meta.push(h('span', { class: 'mt', text: prevLabel(y) + '：' + ptxt }));
-    var body = h('button', { type: 'button', class: 'body', 'aria-label': it.name + ' の詳細', onclick: function () { openDetail(it.id); } },
-      h('span', { class: 'nm', text: it.name }), meta);
-    return h('li', { class: 'card' }, stampBtn, body);
-  }
-
-  function render() {
-    var app = $('#app');
-    app.textContent = '';
-    var y = view.year;
-
-    app.appendChild(h('header', { class: 'hd' },
-      h('div', {}, h('h1', { text: 'そむごよみ' }), h('p', { text: '私だけの「今年初めて」を記録するアプリ' })),
-      h('div', { class: 'tools' },
-        h('button', { type: 'button', class: 'icon-btn', 'aria-label': '使い方', text: '？', onclick: openHelp }),
-        h('button', { type: 'button', class: 'icon-btn', 'aria-label': '設定', text: '設定', onclick: openSettings }))));
-
-    var yb = h('div', { class: 'yearbar' },
-      h('button', { type: 'button', class: 'nav-btn', 'aria-label': '前の年', text: '◀', disabled: y <= 2000 ? true : null, onclick: function () { view.year--; render(); } }),
-      h('div', { class: 'y', 'aria-live': 'polite' }, y + '年', h('small', { text: y === CUR ? '今年' : (y === CUR - 1 ? '昨年' : '過去の年') })),
-      h('button', { type: 'button', class: 'nav-btn', 'aria-label': '次の年', text: '▶', disabled: y >= CUR ? true : null, onclick: function () { view.year++; render(); } }));
-    if (y !== CUR) yb.appendChild(h('button', { type: 'button', class: 'now-btn', text: '今年へ', onclick: function () { view.year = CUR; render(); } }));
-    app.appendChild(yb);
-
-    var tabs = h('div', { class: 'tabs', role: 'tablist', 'aria-label': '季節' });
-    SEASONS.forEach(function (s) {
-      tabs.appendChild(h('button', { type: 'button', class: 'tab', role: 'tab', 'aria-selected': view.tab === s.k ? 'true' : 'false', onclick: function () { view.tab = s.k; render(); } },
-        s.n, h('small', { text: s.r })));
+    askConfirm('いまの記録を、この内容で置き換えます。よろしいですか？', '復元する', function(){
+      try{
+        state.items = parsed.items;
+        state.records = parsed.records;
+        state.skips = parsed.skips;
+        state.settings.dateStyle = parsed.dateStyle;
+        saveState();
+        renderSettings();
+        renderTabs();
+        renderList();
+        exportText.value = buildExportJson();
+        setBackupStatus('復元しました。');
+      }catch(e){
+        setBackupStatus('復元中に問題が起きました。', true);
+      }
     });
-    tabs.appendChild(h('button', { type: 'button', class: 'tab', role: 'tab', 'aria-selected': view.tab === 'skip' ? 'true' : 'false', onclick: function () { view.tab = 'skip'; render(); } },
-      '見送り', h('small', { text: skippedIds(y).length + '件' })));
-    app.appendChild(tabs);
+  });
 
-    var list = h('ul', { class: 'list', role: 'tabpanel' });
-    if (view.tab === 'skip') {
-      var sk = skippedIds(y);
-      if (!sk.length) list.appendChild(h('li', { class: 'empty', text: yl(y) + 'の見送りはありません。' }));
-      sk.forEach(function (id) { list.appendChild(cardNode(byId[id], y, true)); });
-      app.appendChild(list);
-    } else {
-      var ids = visibleIds(view.tab, y);
-      if (!ids.length) list.appendChild(h('li', { class: 'empty', text: 'この季節に表示する項目がありません。' }));
-      ids.forEach(function (id) { list.appendChild(cardNode(byId[id], y, false)); });
-      app.appendChild(list);
-      app.appendChild(h('button', { type: 'button', class: 'add-btn', text: '＋ 自分の項目を追加する', onclick: function () { openNameDialog('add'); } }));
+  /* ================= ヘルプ ================= */
+  var btnHelp = document.getElementById('btnHelp');
+  var helpOverlay = document.getElementById('helpOverlay');
+  var helpClose = document.getElementById('helpClose');
+  if(btnHelp) btnHelp.addEventListener('click', function(){ helpOverlay.hidden = false; });
+  if(helpClose) helpClose.addEventListener('click', function(){ helpOverlay.hidden = true; });
+  if(helpOverlay) helpOverlay.addEventListener('click', function(e){ if(e.target === helpOverlay) helpOverlay.hidden = true; });
+
+  /* ================= ロック画面 ================= */
+  var lockScreen = document.getElementById('lockScreen');
+  var pinDots = document.getElementById('pinDots');
+  var lockErr = document.getElementById('lockErr');
+  var keypad = document.getElementById('keypad');
+  var enteredPin = '';
+  var lockBusy = false;
+
+  function renderPinDots(){
+    if(!pinDots) return;
+    var spans = pinDots.querySelectorAll('span');
+    for(var i = 0; i < spans.length; i++){
+      spans[i].className = (i < enteredPin.length) ? 'filled' : '';
     }
-    app.appendChild(h('p', { class: 'foot', text: '記録はこの端末のブラウザにだけ保存されます' }));
-    lastStamped = null;
+  }
+  function initLock(){
+    if(!state.settings.passcodeEnabled || !state.settings.passcode){
+      if(lockScreen) lockScreen.hidden = true;
+      return;
+    }
+    if(lockScreen) lockScreen.hidden = false;
+    enteredPin = '';
+    renderPinDots();
+  }
+  if(keypad) keypad.addEventListener('click', function(e){
+    var node = e.target;
+    while(node && node !== keypad && !(node.getAttribute && node.getAttribute('data-k') !== null)){ node = node.parentNode; }
+    if(!node || node === keypad || lockBusy) return;
+    var k = node.getAttribute('data-k');
+    if(k === 'back'){
+      enteredPin = enteredPin.slice(0, -1);
+      if(lockErr) lockErr.textContent = '';
+      renderPinDots();
+      return;
+    }
+    if(enteredPin.length >= 4) return;
+    enteredPin += k;
+    renderPinDots();
+    if(enteredPin.length === 4){
+      lockBusy = true;
+      setTimeout(function(){
+        try{
+          if(enteredPin === state.settings.passcode){
+            lockScreen.hidden = true;
+            enteredPin = '';
+            renderPinDots();
+            if(lockErr) lockErr.textContent = '';
+            lockBusy = false;
+          } else {
+            lockErr.textContent = 'パスコードが違います。';
+            pinDots.classList.add('shake');
+            setTimeout(function(){
+              pinDots.classList.remove('shake');
+              enteredPin = '';
+              renderPinDots();
+              lockBusy = false;
+            }, 380);
+          }
+        }catch(err){
+          lockBusy = false;
+          if(lockScreen) lockScreen.hidden = true; // 判定エラー時は締め出さない
+        }
+      }, 120);
+    }
+  });
+
+  /* ================= Service Worker 登録 ================= */
+  try{
+    if('serviceWorker' in navigator){
+      window.addEventListener('load', function(){
+        try{
+          navigator.serviceWorker.register('./sw.js').catch(function(){ /* 登録失敗は無視して継続 */ });
+        }catch(e){}
+      });
+    }
+  }catch(e){}
+
+  /* ================= 初期化 ================= */
+  try{
+    renderYearHeader();
+    renderTabs();
+    renderList();
+    renderSettings();
+    initLock();
+  }catch(e){
+    try{ if(lockScreen) lockScreen.hidden = true; }catch(e2){}
   }
 
-  /* ---------- 起動 ---------- */
-  try { state = load(); } catch (e) { state = normalize(null); }
-  view = { tab: seasonOfMonth(NOW.getMonth() + 1), year: CUR };
-  buildItems();
-  render();
-  showLock();
-
-  try {
-    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-      navigator.serviceWorker.register('./sw.js').catch(function () {});
-    }
-  } catch (e) {}
 });
 </script>
+
+<footer style="text-align: center; font-size: 0.75rem; color: #888; margin-top: 3rem; padding: 1rem 0.5rem; line-height: 1.5;">
+  <p style="margin-bottom: 0.5rem;">【ご利用について】</p>
+  <p style="margin-bottom: 0.5rem;">本アプリの利用に伴うトラブルやデータ損失等について、開発者は一切の責任を負いかねます。</p>
+  <p style="margin-bottom: 0.5rem;">ご意見・不具合のご報告は X（<a href="https://x.com/lblt_labo" target="_blank" rel="noopener" style="color: #666; text-decoration: underline;">@lblt_labo</a>）までお願いいたします。</p>
+  <p style="margin-top: 0.5rem;"><a href="https://ofuse.me/lbltlabo/letter" target="_blank" rel="noopener noreferrer" style="color: #666; text-decoration: underline;">☕️ 開発者を応援する / メッセージを送る</a></p>
+</footer>
 </body>
 </html>
